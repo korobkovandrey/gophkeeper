@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package gophkeeper;
+
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "./pkg/proto";
+
+service AuthService {
+  rpc Login(LoginRequest) returns (AuthResponse);
+  rpc Register(RegisterRequest) returns (AuthResponse);
+}
+
+message RegisterRequest {
+  bytes public_key_bytes = 1;
+  int64 timestamp = 2;
+  bytes signature = 3;
+}
+
+message LoginRequest {
+  string fingerprint = 1;
+  int64 timestamp = 2;
+  bytes signature = 3;
+}
+
+message AuthResponse {
+  int64 user_id = 1;
+  google.protobuf.Timestamp start_time = 2;
+  google.protobuf.Timestamp end_time = 3;
+}
