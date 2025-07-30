@@ -1,0 +1,16 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    queries: "internal/server/infra/db/sql"
+    schema: "internal/server/infra/db/migrations"
+    gen:
+      go:
+        out: "internal/server/infra/db/query"
+        overrides:
+          - db_type: "pg_catalog.timestamp"
+            go_type:
+              import: "time"
+              type: "Time"
+          - db_type: "pg_catalog.numeric"
+            go_type:
+              type: "float64"
