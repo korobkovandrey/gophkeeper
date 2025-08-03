@@ -5,6 +5,7 @@ import (
 	"gophkeeper/internal/client/app"
 	"gophkeeper/internal/client/config"
 	"gophkeeper/internal/client/tui"
+	"gophkeeper/internal/client/tui/cmd"
 	"gophkeeper/pkg/logging"
 	"log"
 	"time"
@@ -63,7 +64,7 @@ func main() {
 	p := tea.NewProgram(tui.NewModel(ctx, a), tea.WithContext(ctx), tea.WithAltScreen())
 	go func() {
 		time.Sleep(5 * time.Second)
-		p.Send(tui.NewChangeSecretsMsg())
+		p.Send(cmd.NewChangeSecretsMsg())
 	}()
 	if _, err := p.Run(); err != nil {
 		l.FatalCtx(ctx, "error starting program", zap.Error(err))

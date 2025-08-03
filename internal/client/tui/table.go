@@ -1,6 +1,9 @@
 package tui
 
 import (
+	"gophkeeper/internal/client/model2"
+	"gophkeeper/internal/client/tui/cmd"
+
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -8,7 +11,8 @@ import (
 
 type tableModel struct {
 	table.Model
-	debug string
+	secrets  []*model2.Secret
+	selectID string
 }
 
 func newTableModel() tableModel {
@@ -44,21 +48,38 @@ func (m tableModel) Init() tea.Cmd {
 func (m tableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch tMsg := msg.(type) {
 	case tea.WindowSizeMsg:
-		m.Model.SetHeight(tMsg.Height - 6)
+		m.Model.SetHeight(tMsg.Height - 2)
+	case cmd.ScreenFocusMsg:
+		m.Model.Focus()
+	case cmd.ScreenBlurMsg:
+		m.Model.Blur()
 	case tea.KeyMsg:
-		if tMsg.Type == tea.KeyEsc || tMsg.Type == tea.KeyTab {
-			return m, newBtnsFocusCmd()
+		if tMsg.Type == tea.KeyTab {
+			return m, cmd.ScreenBlur()
 		}
-	case tableRowsMsg:
-		m.Model.SetRows(tMsg.rows)
-		m.Model.SetCursor(tMsg.cursor)
+	case cmd.SelectIDMsg:
+		m.selectID = string(tMsg)
 		return m, nil
+	case cmd.TableRowsMsg:
+		m.Model.SetRows(tMsg.Rows)
+		m.Model.SetCursor(tMsg.Cursor)
+		return m, m.checkSelect()
 	}
-	var c tea.Cmd
-	m.Model, c = m.Model.Update(msg)
-	return m, c
+	m.Model, _ = m.Model.Update(msg)
+	return m, m.checkSelect()
 }
 
 func (m tableModel) View() string {
-	return tableBaseStyle.Render(m.Model.View()) + "\n" + m.debug
+	return tableBaseStyle.Render(m.Model.View())
+}
+
+func (m tableModel) checkSelect() tea.Cmd {
+	selectID := ""
+	if selected := m.Model.SelectedRow(); selected != nil {
+		selectID = selected[1]
+	}
+	if selectID == m.selectID {
+		return nil
+	}
+	return cmd.SelectID(selectID)
 }

@@ -25,3 +25,7 @@ func (s *App) IsLogged() bool {
 func (s *App) IsOnline() bool {
 	return s.auth.UserID > 0
 }
+
+func (s *App) Fingerprint() string {
+	return s.auth.Fingerprint
+}

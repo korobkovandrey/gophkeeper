@@ -18,15 +18,27 @@ func (m Model) View() string {
 		if !ok {
 			name = strconv.Itoa(int(m.btns[i]))
 		}
-		if m.btnsFocus && m.btnsCursor == i {
+		if m.focused && m.cursor == i {
 			btns = append(btns, btnFocusedStyle.Render(name))
 		} else {
 			btns = append(btns, btnStyle.Render(name))
 		}
 	}
-	btnsStr := lipgloss.JoinHorizontal(lipgloss.Left, btns...)
+	btnsStr := lipgloss.JoinHorizontal(lipgloss.Center, btns...)
 
-	header := headerStyle.Render(lipgloss.JoinVertical(lipgloss.Center, "GophKeeper", selectedStyle.Render(m.app.GetPrivateKeyPath())))
+	var statusText string
+	if m.app.IsOnline() {
+		statusText = onlineStyle.Render("ONLINE")
+	} else {
+		statusText = offlineStyle.Render("OFFLINE")
+	}
+
+	header := lipgloss.JoinHorizontal(lipgloss.Center,
+		headerStyle.Render("GophKeeper"), " ",
+		statusText, " ",
+		selectedStyle.Render(m.app.GetPrivateKeyPath()), " ",
+		m.app.Fingerprint(),
+	)
 
 	var body, help string
 	if m.msg != "" {
@@ -36,12 +48,10 @@ func (m Model) View() string {
 	} else if m.screen != nil {
 		body = m.screen.View()
 	}
-	help += "tab: focus next • enter: select • ctrl+c, f10: exit"
-	if m.app.IsOnline() {
-		help += " • ONLINE"
-	} else {
-		help += " • OFFLINE"
+	help += "esc: change focus • tab: focus next • enter: select • ctrl+c, f10: exit"
+	m.debug = m.selectID
+	if m.debug != "" {
+		help += " debug: " + m.debug
 	}
-	help += m.debug
-	return lipgloss.JoinVertical(lipgloss.Top, header, lipgloss.JoinVertical(lipgloss.Top, body, btnsStr, helpStyle.Render(help)))
+	return lipgloss.JoinVertical(lipgloss.Left, header, body, btnsStr, helpStyle.Render(help))
 }

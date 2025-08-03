@@ -2,6 +2,8 @@ package tui
 
 import (
 	"context"
+	"gophkeeper/internal/client/tui/cmd"
+	"gophkeeper/internal/client/tui/form"
 
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
@@ -9,11 +11,13 @@ import (
 
 type appService interface {
 	GetPrivateKeyPath() string
+	Fingerprint() string
 	SetPrivateKeyPath(privateKeyPath string) error
 	Login(ctx context.Context) error
 	Register(ctx context.Context) error
 	IsLogged() bool
 	IsOnline() bool
+	//List() [][]string
 	//Secrets() []model.Secret
 }
 
@@ -27,7 +31,8 @@ const (
 	btnFormAddText
 	btnFormAddLoginPass
 	btnFormAddCard
-	btnFormAddFile
+	btnSave
+	btnDelete
 )
 
 type Model struct {
@@ -38,12 +43,15 @@ type Model struct {
 	table  tea.Model
 	screen tea.Model
 
-	btnsFocus   bool
+	focused     bool
+	cursor      int
 	btns        []btn
-	btnsCursor  int
 	btnNames    map[btn]string
 	debug       string
 	initialized bool
+	formIsValid bool
+	formIsNew   bool
+	selectID    string
 }
 
 func NewModel(ctx context.Context, app appService) Model {
@@ -54,11 +62,12 @@ func NewModel(ctx context.Context, app appService) Model {
 			btnTable:            "Таблица",
 			btnLogin:            "Логин",
 			btnRegister:         "Регистрация",
-			btnFile:             "Файл...",
+			btnFile:             "Ключ...",
+			btnSave:             "Сохранить",
+			btnDelete:           "Удалить",
 			btnFormAddText:      "Добавить Текст",
 			btnFormAddLoginPass: "Добавить Логин/Пароль",
 			btnFormAddCard:      "Добавить Карту",
-			btnFormAddFile:      "Добавить файл",
 		},
 		table: newTableModel(),
 	}
@@ -67,16 +76,19 @@ func NewModel(ctx context.Context, app appService) Model {
 }
 
 func (m Model) Init() tea.Cmd {
-	if m.app.GetPrivateKeyPath() != "" {
-		return newShowFilepickerCmd()
+	var c tea.Cmd
+	if m.app.GetPrivateKeyPath() == "" {
+		c = cmd.ShowFilepicker()
+	} else {
+		c = cmd.ShowTable()
 	}
-	return newShowTableCmd()
+	return tea.Batch(tea.SetWindowTitle("Gophkeeper"), c)
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch tMsg := msg.(type) {
 	case tea.WindowSizeMsg:
-		tMsg.Height -= 4
+		tMsg.Height -= 7
 		msg = tMsg
 	case tea.KeyMsg:
 		if tMsg.Type == tea.KeyF10 || tMsg.Type == tea.KeyCtrlC {
@@ -86,42 +98,57 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.msg = ""
 			return m, nil
 		}
-	case btnsFocusMsg:
-		m.btnsFocus = true
-		return m, nil
-	case updateBtnsMsg:
+		if tMsg.Type == tea.KeyEsc {
+			if m.focused {
+				return m, cmd.ScreenFocus()
+			}
+			return m, cmd.ScreenBlur()
+		}
+	case cmd.ScreenFocusMsg:
+		m.focused = false
+	case cmd.ScreenBlurMsg:
+		m.cursor = 0
+		m.focused = true
+	case cmd.UpdateBtnsMsg:
 		updateBtns(&m)
 		m.initialized = true
 		return m, nil
-	case selectPrivatePathMsg:
+	case cmd.FormValidMsg:
+		m.formIsValid = tMsg.IsValid
+		updateBtns(&m)
+		return m, nil
+	case cmd.SelectPrivatePathMsg:
 		err := m.app.SetPrivateKeyPath(string(tMsg))
 		if err != nil {
 			setMsg(&m, err.Error())
 		}
 		return m, nil
-	case showFilepickerMsg:
-		m.btnsCursor = 0
-		m.btnsFocus = false
+	case cmd.ShowFilepickerMsg:
 		m.screen = newFilepickerModel()
-		return m, tea.Sequence(m.screen.Init(), tea.WindowSize(), newUpdateBtnsCmd())
-	case showTableMsg:
-		m.btnsCursor = 0
-		m.btnsFocus = false
+		return m, tea.Sequence(cmd.ScreenFocus(), m.screen.Init(), tea.WindowSize(), cmd.UpdateBtns())
+	case cmd.ShowTableMsg:
 		m.screen = m.table
-		return m, tea.Sequence(tea.WindowSize(), newUpdateBtnsCmd())
-	case changeSecretsMsg:
+		return m, tea.Sequence(cmd.ScreenFocus(), tea.WindowSize(), cmd.UpdateBtns())
+	case cmd.ShowFormTextMsg:
+		m.formIsValid = false
+		m.formIsNew = true
+		m.screen = form.MakeFormTextModel(tMsg.ID, tMsg.Text, tMsg.MetaKeys, tMsg.MetaVals)
+		return m, tea.Sequence(cmd.ScreenFocus(), m.screen.Init(), tea.WindowSize(), cmd.UpdateBtns())
+	case cmd.SelectIDMsg:
+		m.selectID = string(tMsg)
+	case cmd.ChangeSecretsMsg:
 		//secrets := m.app.Secrets()
 		rows := []table.Row{
 			{"статус1", "ид1", "деск1", "created_at1", "updated_at1"},
 			{"статус2", "ид2", "деск2", "created_at2", "updated_at2"},
-			{"статус3", "ид2", "деск2", "created_at2", "updated_at2"},
-			{"статус4", "ид2", "деск2", "created_at2", "updated_at2"},
-			{"статус5", "ид2", "деск2", "created_at2", "updated_at2"},
-			{"статус6", "ид2", "деск2", "created_at2", "updated_at2"},
-			{"статус7", "ид2", "деск2", "created_at2", "updated_at2"},
-			{"статус8", "ид2", "деск2", "created_at2", "updated_at2"},
-			{"статус9", "ид2", "деск2", "created_at2", "updated_at2"},
-			{"статус10", "ид2", "деск2", "created_at2", "updated_at2"},
+			{"статус3", "ид3", "деск2", "created_at2", "updated_at2"},
+			{"статус4", "ид4", "деск2", "created_at2", "updated_at2"},
+			{"статус5", "ид5", "деск2", "created_at2", "updated_at2"},
+			{"статус6", "ид6", "деск2", "created_at2", "updated_at2"},
+			{"статус7", "ид7", "деск2", "created_at2", "updated_at2"},
+			{"статус8", "ид8", "деск2", "created_at2", "updated_at2"},
+			{"статус9", "ид9", "деск2", "created_at2", "updated_at2"},
+			{"статус10", "ид10", "деск2", "created_at2", "updated_at2"},
 			{"статус11", "ид2", "деск2", "created_at2", "updated_at2"},
 			{"статус12", "ид2", "деск2", "created_at2", "updated_at2"},
 			{"статус13", "ид2", "деск2", "created_at2", "updated_at2"},
@@ -129,61 +156,81 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		switch m.screen.(type) {
 		case tableModel:
-			return m, newCmd(newTableRowsMsg(rows, 0))
+			return m, cmd.TableRows(rows, 0)
 		}
 		var c tea.Cmd
-		m.table, c = m.table.Update(newTableRowsMsg(rows, 0))
+		m.table, c = m.table.Update(cmd.NewTableRowsMsg(rows, 0))
 		return m, c
-	case showFormTextMsg:
-
 	}
 
-	if m.screen == nil {
-		return m, nil
-	}
-
-	if m.btnsFocus {
-		switch tMsg := msg.(type) {
+	if m.focused {
+		switch msg := msg.(type) {
 		case tea.KeyMsg:
-			var cmd tea.Cmd
-			switch tMsg.Type {
-			case tea.KeyEsc:
-				m.btnsFocus = false
+			var c tea.Cmd
+			switch msg.Type {
+			case tea.KeyCtrlD:
+				break
 			case tea.KeyTab:
-				if m.btnsCursor < len(m.btns)-1 {
-					m.btnsCursor++
+				if m.cursor < len(m.btns)-1 {
+					m.cursor++
+					return m, nil
 				} else {
-					m.btnsCursor = 0
-					m.btnsFocus = false
+					m.cursor = 0
+					return m, cmd.ScreenFocus()
 				}
+			case tea.KeyUp:
+				if m.cursor > 0 {
+					m.cursor--
+				} else {
+					m.cursor = len(m.btns) - 1
+				}
+				return m, nil
+			case tea.KeyDown:
+				if m.cursor < len(m.btns)-1 {
+					m.cursor++
+				} else {
+					m.cursor = 0
+				}
+				return m, c
 			case tea.KeyEnter:
-				if m.btnsCursor < 0 || m.btnsCursor >= len(m.btns) {
+				if m.cursor < 0 || m.cursor >= len(m.btns) {
 					break
 				}
-				switch m.btns[m.btnsCursor] {
+				switch m.btns[m.cursor] {
 				case btnTable:
-					cmd = newShowTableCmd()
+					c = cmd.ShowTable()
 				case btnFile:
-					cmd = newShowFilepickerCmd()
+					c = cmd.ShowFilepicker()
 				case btnLogin:
 					if err := m.app.Login(m.ctx); err != nil {
 						setMsg(&m, err.Error())
 					} else {
-						cmd = newShowTableCmd()
+						c = cmd.ShowTable()
 					}
 				case btnRegister:
 					if err := m.app.Register(m.ctx); err != nil {
 						setMsg(&m, err.Error())
 					} else {
-						cmd = newShowTableCmd()
+						c = cmd.ShowTable()
 					}
+				case btnFormAddText:
+					return m, cmd.NewShowFormTextCmd("", "", []string{""}, []string{""})
+				case btnSave:
+				case btnDelete:
+
 				default:
 				}
+				return m, c
+			default:
+				return m, nil
 			}
-			return m, cmd
 		case tea.MouseMsg:
 			return m, nil
 		}
+	}
+
+	if m.screen == nil {
+		return m, nil
 	}
 
 	var c tea.Cmd
