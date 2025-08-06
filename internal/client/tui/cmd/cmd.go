@@ -1,7 +1,8 @@
 package cmd
 
 import (
-	"github.com/charmbracelet/bubbles/table"
+	"gophkeeper/internal/client/tuiadapter"
+
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -11,25 +12,33 @@ func NewCmd[T tea.Msg](v T) tea.Cmd {
 	}
 }
 
+type MsgMsg string
+
+func Msg(msg string) tea.Cmd {
+	return NewCmd(MsgMsg(msg))
+}
+
 type UpdateBtnsMsg struct{}
 type SelectPrivatePathMsg string
 type ShowFilepickerMsg struct{}
-type ChangeSecretsMsg struct{}
-type TableRowsMsg struct {
-	Rows   []table.Row
-	Cursor int
+type ChangeSecretsMsg struct {
+	ID string
+}
+type RowsMsg struct {
+	ID   string
+	Rows []tuiadapter.Row
 }
 type ShowTableMsg struct{}
 type ScreenFocusMsg struct{}
 type ScreenBlurMsg struct{}
 type SelectIDMsg string
 
-func NewTableRowsMsg(rows []table.Row, cursor int) tea.Msg {
-	return TableRowsMsg{Rows: rows, Cursor: cursor}
+func NewRowsMsg(id string, rows []tuiadapter.Row) tea.Msg {
+	return RowsMsg{ID: id, Rows: rows}
 }
 
-func NewChangeSecretsMsg() tea.Msg {
-	return ChangeSecretsMsg{}
+func NewChangeSecretsMsg(id string) tea.Msg {
+	return ChangeSecretsMsg{ID: id}
 }
 
 func ScreenFocus() tea.Cmd {
@@ -56,12 +65,12 @@ func ShowTable() tea.Cmd {
 	return NewCmd(ShowTableMsg{})
 }
 
-func TableRows(rows []table.Row, cursor int) tea.Cmd {
-	return NewCmd(NewTableRowsMsg(rows, cursor))
+func TableRows(id string, rows []tuiadapter.Row) tea.Cmd {
+	return NewCmd(NewRowsMsg(id, rows))
 }
 
-func ChangeSecrets() tea.Cmd {
-	return NewCmd(NewChangeSecretsMsg())
+func ChangeSecrets(id string) tea.Cmd {
+	return NewCmd(NewChangeSecretsMsg(id))
 }
 
 func SelectID(id string) tea.Cmd {

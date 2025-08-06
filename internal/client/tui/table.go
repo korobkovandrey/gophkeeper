@@ -1,8 +1,8 @@
 package tui
 
 import (
-	"gophkeeper/internal/client/model2"
 	"gophkeeper/internal/client/tui/cmd"
+	"gophkeeper/internal/client/tuiadapter"
 
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
@@ -11,17 +11,17 @@ import (
 
 type tableModel struct {
 	table.Model
-	secrets  []*model2.Secret
-	selectID string
+	ids []string
 }
 
 func newTableModel() tableModel {
 	columns := []table.Column{
 		{Title: "Статус", Width: 10},
-		{Title: "ID", Width: 20},
-		{Title: "Desc", Width: 20},
-		{Title: "Created", Width: 10},
-		{Title: "Updated", Width: 10},
+		{Title: "Тип", Width: 10},
+		{Title: "ID", Width: 30},
+		{Title: "Meta", Width: 40},
+		{Title: "Created", Width: 20},
+		{Title: "Updated", Width: 20},
 	}
 	t := table.New(
 		table.WithColumns(columns),
@@ -57,29 +57,54 @@ func (m tableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if tMsg.Type == tea.KeyTab {
 			return m, cmd.ScreenBlur()
 		}
-	case cmd.SelectIDMsg:
-		m.selectID = string(tMsg)
+		if tMsg.Type == tea.KeyEnter {
+			cursor := m.Model.Cursor()
+			if cursor >= 0 && cursor < len(m.ids) {
+				return m, cmd.ShowFormID(m.ids[cursor])
+			}
+		}
+	case cmd.RowsMsg:
+		selectID := tMsg.ID
+		cursor := m.Model.Cursor()
+		if selectID == "" {
+			if cursor >= 0 && cursor < len(m.ids) {
+				selectID = m.ids[cursor]
+			}
+		}
+		var rows []table.Row
+		var newCursor int
+		rows, m.ids, newCursor = rowsToTableRows(selectID, tMsg.Rows)
+		m.Model.SetRows(rows)
+		if cursor != newCursor {
+			m.Model.SetCursor(newCursor)
+		}
 		return m, nil
-	case cmd.TableRowsMsg:
-		m.Model.SetRows(tMsg.Rows)
-		m.Model.SetCursor(tMsg.Cursor)
-		return m, m.checkSelect()
 	}
 	m.Model, _ = m.Model.Update(msg)
-	return m, m.checkSelect()
+	return m, nil
 }
 
 func (m tableModel) View() string {
 	return tableBaseStyle.Render(m.Model.View())
 }
 
-func (m tableModel) checkSelect() tea.Cmd {
-	selectID := ""
-	if selected := m.Model.SelectedRow(); selected != nil {
-		selectID = selected[1]
+func rowsToTableRows(id string, rows []tuiadapter.Row) ([]table.Row, []string, int) {
+	r := make([]table.Row, len(rows))
+	ids := make([]string, len(rows))
+	cursor := 0
+	for i := range rows {
+		r[i] = table.Row{
+			rows[i].Status,
+			rows[i].Type,
+			rows[i].ID,
+			rows[i].Meta,
+			rows[i].Created,
+			rows[i].Updated,
+		}
+		if rows[i].ID == id {
+			cursor = i
+		}
+		ids[i] = rows[i].ID
 	}
-	if selectID == m.selectID {
-		return nil
-	}
-	return cmd.SelectID(selectID)
+	return r, ids, cursor
 }

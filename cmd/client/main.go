@@ -2,10 +2,12 @@ package main
 
 import (
 	"context"
-	"gophkeeper/internal/client/app"
 	"gophkeeper/internal/client/config"
+	"gophkeeper/internal/client/grpcclient"
+	"gophkeeper/internal/client/service"
 	"gophkeeper/internal/client/tui"
 	"gophkeeper/internal/client/tui/cmd"
+	"gophkeeper/internal/client/tuiadapter"
 	"gophkeeper/pkg/logging"
 	"log"
 	"time"
@@ -57,14 +59,23 @@ func main() {
 	}()
 
 	ctx, cancel := context.WithCancel(ctx)
-	a, err := app.NewApp(cfg, conn)
-	if err != nil {
-		l.FatalCtx(ctx, "failed to create app", zap.Error(err))
+	key := service.NewKey()
+
+	if cfg.PrivateKeyPath != "" {
+		if err := key.SetPrivateKeyFromPath(cfg.PrivateKeyPath); err != nil {
+			l.FatalCtx(ctx, "failed to set private key", zap.Error(err))
+		}
 	}
-	p := tea.NewProgram(tui.NewModel(ctx, a), tea.WithContext(ctx), tea.WithAltScreen())
+
+	t := service.NewTime()
+	keyAdapt := tuiadapter.NewKey(cfg, key)
+	authClient := grpcclient.NewAuthClient(conn, key, t)
+	storageAdapt := tuiadapter.NewStorage()
+
+	p := tea.NewProgram(tui.NewModel(ctx, keyAdapt, authClient, storageAdapt), tea.WithContext(ctx), tea.WithAltScreen())
 	go func() {
 		time.Sleep(5 * time.Second)
-		p.Send(cmd.NewChangeSecretsMsg())
+		p.Send(cmd.NewChangeSecretsMsg(""))
 	}()
 	if _, err := p.Run(); err != nil {
 		l.FatalCtx(ctx, "error starting program", zap.Error(err))

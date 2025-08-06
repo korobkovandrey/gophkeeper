@@ -10,8 +10,7 @@ import (
 )
 
 func (s *ServiceServer) Stream(req *proto.Auth, stream grpc.ServerStreamingServer[proto.SecretEvent]) error {
-	//user, err := s.findAndAuthUser(stream.Context(), req)
-	user, err := s.user.Find(stream.Context(), req.UserId)
+	user, err := s.findAndAuthUser(stream.Context(), req)
 	if err != nil {
 		return err
 	}

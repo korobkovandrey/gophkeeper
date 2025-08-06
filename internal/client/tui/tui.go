@@ -4,40 +4,35 @@ import (
 	"context"
 	"gophkeeper/internal/client/tui/cmd"
 	"gophkeeper/internal/client/tui/form"
+	"gophkeeper/internal/client/tuiadapter"
 
-	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type appService interface {
+type keyService interface {
 	GetPrivateKeyPath() string
 	Fingerprint() string
 	SetPrivateKeyPath(privateKeyPath string) error
-	Login(ctx context.Context) error
-	Register(ctx context.Context) error
 	IsLogged() bool
-	IsOnline() bool
-	//List() [][]string
-	//Secrets() []model.Secret
 }
 
-type btn int
+type authClient interface {
+	Login(ctx context.Context) error
+	Register(ctx context.Context) error
+	//IsOnline() bool
+}
 
-const (
-	btnTable btn = iota
-	btnLogin
-	btnRegister
-	btnFile
-	btnFormAddText
-	btnFormAddLoginPass
-	btnFormAddCard
-	btnSave
-	btnDelete
-)
+type storageService interface {
+	List() []tuiadapter.Row
+	SaveText(id, newID, text string) (string, error)
+	Delete(id string) error
+}
 
 type Model struct {
-	ctx context.Context
-	app appService
+	ctx     context.Context
+	key     keyService
+	auth    authClient
+	storage *tuiadapter.Storage
 
 	msg    string
 	table  tea.Model
@@ -49,15 +44,14 @@ type Model struct {
 	btnNames    map[btn]string
 	debug       string
 	initialized bool
-	formIsValid bool
-	formIsNew   bool
-	selectID    string
 }
 
-func NewModel(ctx context.Context, app appService) Model {
+func NewModel(ctx context.Context, key keyService, auth authClient, storage *tuiadapter.Storage) Model {
 	m := Model{
-		ctx: ctx,
-		app: app,
+		ctx:     ctx,
+		key:     key,
+		auth:    auth,
+		storage: storage,
 		btnNames: map[btn]string{
 			btnTable:            "Таблица",
 			btnLogin:            "Логин",
@@ -77,7 +71,7 @@ func NewModel(ctx context.Context, app appService) Model {
 
 func (m Model) Init() tea.Cmd {
 	var c tea.Cmd
-	if m.app.GetPrivateKeyPath() == "" {
+	if m.key.GetPrivateKeyPath() == "" {
 		c = cmd.ShowFilepicker()
 	} else {
 		c = cmd.ShowTable()
@@ -90,6 +84,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		tMsg.Height -= 7
 		msg = tMsg
+	case cmd.MsgMsg:
+		m.msg = string(tMsg)
+		return m, nil
 	case tea.KeyMsg:
 		if tMsg.Type == tea.KeyF10 || tMsg.Type == tea.KeyCtrlC {
 			return m, tea.Quit
@@ -113,14 +110,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		updateBtns(&m)
 		m.initialized = true
 		return m, nil
-	case cmd.FormValidMsg:
-		m.formIsValid = tMsg.IsValid
-		updateBtns(&m)
-		return m, nil
 	case cmd.SelectPrivatePathMsg:
-		err := m.app.SetPrivateKeyPath(string(tMsg))
+		err := m.key.SetPrivateKeyPath(string(tMsg))
 		if err != nil {
-			setMsg(&m, err.Error())
+			return m, cmd.Msg(err.Error())
 		}
 		return m, nil
 	case cmd.ShowFilepickerMsg:
@@ -129,38 +122,41 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case cmd.ShowTableMsg:
 		m.screen = m.table
 		return m, tea.Sequence(cmd.ScreenFocus(), tea.WindowSize(), cmd.UpdateBtns())
-	case cmd.ShowFormTextMsg:
-		m.formIsValid = false
-		m.formIsNew = true
-		m.screen = form.MakeFormTextModel(tMsg.ID, tMsg.Text, tMsg.MetaKeys, tMsg.MetaVals)
-		return m, tea.Sequence(cmd.ScreenFocus(), m.screen.Init(), tea.WindowSize(), cmd.UpdateBtns())
-	case cmd.SelectIDMsg:
-		m.selectID = string(tMsg)
-	case cmd.ChangeSecretsMsg:
-		//secrets := m.app.Secrets()
-		rows := []table.Row{
-			{"статус1", "ид1", "деск1", "created_at1", "updated_at1"},
-			{"статус2", "ид2", "деск2", "created_at2", "updated_at2"},
-			{"статус3", "ид3", "деск2", "created_at2", "updated_at2"},
-			{"статус4", "ид4", "деск2", "created_at2", "updated_at2"},
-			{"статус5", "ид5", "деск2", "created_at2", "updated_at2"},
-			{"статус6", "ид6", "деск2", "created_at2", "updated_at2"},
-			{"статус7", "ид7", "деск2", "created_at2", "updated_at2"},
-			{"статус8", "ид8", "деск2", "created_at2", "updated_at2"},
-			{"статус9", "ид9", "деск2", "created_at2", "updated_at2"},
-			{"статус10", "ид10", "деск2", "created_at2", "updated_at2"},
-			{"статус11", "ид2", "деск2", "created_at2", "updated_at2"},
-			{"статус12", "ид2", "деск2", "created_at2", "updated_at2"},
-			{"статус13", "ид2", "деск2", "created_at2", "updated_at2"},
-			{"статус14", "ид2", "деск2", "created_at2", "updated_at2"},
+	case cmd.ShowFormIDMsg:
+		t, err := m.storage.Type(string(tMsg))
+		if err != nil {
+			return m, cmd.Msg(err.Error())
 		}
+		switch t {
+		case tuiadapter.DataTypeText:
+			data, err := m.storage.DataText(string(tMsg))
+			if err != nil {
+				return m, cmd.Msg(err.Error())
+			}
+			return m, cmd.ShowFormText(data.ID, data.Text, data.Meta)
+		}
+		return m, nil
+	case cmd.ShowFormTextMsg:
+		m.screen = form.MakeFormTextModel(tMsg.ID, tMsg.Text, tMsg.Meta)
+		return m, tea.Sequence(cmd.ScreenFocus(), m.screen.Init(), tea.WindowSize(), cmd.UpdateBtns())
+	case tuiadapter.ChangeMsg:
 		switch m.screen.(type) {
 		case tableModel:
-			return m, cmd.TableRows(rows, 0)
+			return m, cmd.TableRows(tMsg.ID, m.storage.List())
 		}
 		var c tea.Cmd
-		m.table, c = m.table.Update(cmd.NewTableRowsMsg(rows, 0))
+		m.table, c = m.table.Update(cmd.NewRowsMsg(tMsg.ID, m.storage.List()))
 		return m, c
+	case cmd.SaveTextMsg:
+		if err := m.storage.SaveText(tMsg.ID, tMsg.NewID, tMsg.Text, tMsg.Meta); err != nil {
+			return m, cmd.Msg(err.Error())
+		}
+		return m, cmd.ShowTable()
+	case cmd.DeleteIDMsg:
+		if err := m.storage.Delete(string(tMsg)); err != nil {
+			return m, cmd.Msg(err.Error())
+		}
+		return m, cmd.ShowTable()
 	}
 
 	if m.focused {
@@ -202,22 +198,23 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				case btnFile:
 					c = cmd.ShowFilepicker()
 				case btnLogin:
-					if err := m.app.Login(m.ctx); err != nil {
-						setMsg(&m, err.Error())
+					if err := m.auth.Login(m.ctx); err != nil {
+						c = cmd.Msg(err.Error())
 					} else {
 						c = cmd.ShowTable()
 					}
 				case btnRegister:
-					if err := m.app.Register(m.ctx); err != nil {
-						setMsg(&m, err.Error())
+					if err := m.auth.Register(m.ctx); err != nil {
+						c = cmd.Msg(err.Error())
 					} else {
 						c = cmd.ShowTable()
 					}
 				case btnFormAddText:
-					return m, cmd.NewShowFormTextCmd("", "", []string{""}, []string{""})
+					return m, cmd.ShowFormText("", "", tuiadapter.NewMeta(""))
 				case btnSave:
+					return m, cmd.EventSave()
 				case btnDelete:
-
+					return m, cmd.EventDelete()
 				default:
 				}
 				return m, c

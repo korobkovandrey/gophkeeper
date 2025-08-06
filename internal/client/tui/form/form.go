@@ -3,6 +3,7 @@ package form
 import (
 	"fmt"
 	"gophkeeper/internal/client/tui/cmd"
+	"gophkeeper/internal/client/tuiadapter"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/charmbracelet/bubbles/viewport"
@@ -18,11 +19,6 @@ var (
 	focusedInvalidStyle   = inputStyle.BorderForeground(lipgloss.Color("#b50404"))
 	unfocusedInvalidStyle = inputStyle.BorderForeground(lipgloss.Color("#450202"))
 )
-
-type MetaData struct {
-	Key string
-	Val string
-}
 
 type fieldsModel interface {
 	update(tea.Msg) (fieldsModel, tea.Cmd)
@@ -42,10 +38,10 @@ type Model struct {
 	model    fieldsModel
 	cursor   int
 	focused  bool
-	isValid  bool
+	IsValid  bool
 }
 
-func NewModel(id string, fields fieldsModel, metaKeys, metaVals []string) Model {
+func NewModel(id string, fields fieldsModel, meta tuiadapter.Meta) Model {
 	vp := viewport.New(0, 0)
 	vp.MouseWheelEnabled = true
 	m := Model{
@@ -59,32 +55,12 @@ func NewModel(id string, fields fieldsModel, metaKeys, metaVals []string) Model 
 	m.newID.Prompt = "> "
 	m.newID.Width = 20
 	m.newID.SetValue(id)
-	addMetas(&m, metaKeys, metaVals)
+	addMetas(&m, meta)
 	return m
 }
 
 func (m Model) Init() tea.Cmd {
 	return nil
-}
-
-func addMetas(m *Model, metaKeys, metaVals []string) {
-	lenVals := len(metaVals)
-	for i := range metaKeys {
-		key := textinput.New()
-		key.Width = 10
-		key.Placeholder = "Key"
-		key.Prompt = "> "
-		key.SetValue(metaKeys[i])
-		m.metaKeys = append(m.metaKeys, key)
-		val := textinput.New()
-		val.Width = 10
-		val.Placeholder = "Value"
-		val.Prompt = "> "
-		if i < lenVals {
-			val.SetValue(metaVals[i])
-		}
-		m.metaVals = append(m.metaVals, val)
-	}
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -98,7 +74,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	lenMetaInputs := len(m.metaKeys) * 2
 	lenInputs := 1 + lenModelInputs + lenMetaInputs
 	focused := m.focused
-	isValid := m.isValid
+	isValid := m.IsValid
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.viewport.Height = msg.Height
@@ -108,6 +84,17 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case cmd.ScreenBlurMsg:
 		newCursor = -1
 		m.focused = false
+	case cmd.EventSaveMsg:
+		if !m.validate() {
+			return m, cmd.Msg("validate error")
+		}
+		switch model := m.model.(type) {
+		case textModel:
+			c = cmd.SaveText(m.id, m.newID.Value(), model.text.Value(), m.meta())
+		}
+		return m, c
+	case cmd.EventDeleteMsg:
+		return m, cmd.DeleteID(m.id)
 	case tea.KeyMsg:
 		switch msg.Type {
 		case tea.KeyTab:
@@ -117,7 +104,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, cmd.ScreenBlur()
 			}
 		case tea.KeyCtrlD:
-			addMetas(&m, []string{""}, []string{""})
+			addMetas(&m, tuiadapter.NewMeta("", ""))
 			lenMetaInputs += 2
 			lenInputs += 2
 			if m.focused {
@@ -142,9 +129,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		} else {
 			m.model, c = m.model.update(msg)
 		}
-		m.isValid = m.validate()
-		if isValid != m.validate() {
-			c = tea.Sequence(c, cmd.NewFormValidCmd(m.isValid))
+		m.IsValid = m.validate()
+		if m.IsValid != isValid {
+			c = tea.Batch(c, cmd.UpdateBtns())
 		}
 	} else {
 		if newCursor == 0 {
@@ -238,4 +225,8 @@ func (m Model) view() string {
 
 func (m Model) validate() bool {
 	return m.newID.Value() != "" && m.model.isValid()
+}
+
+func (m Model) IsNew() bool {
+	return m.id == ""
 }

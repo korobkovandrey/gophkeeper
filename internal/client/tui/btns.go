@@ -2,10 +2,19 @@ package tui
 
 import "gophkeeper/internal/client/tui/form"
 
-func setMsg(m *Model, msg string) {
-	//m.focused = false
-	m.msg = msg
-}
+type btn int
+
+const (
+	btnTable btn = iota
+	btnLogin
+	btnRegister
+	btnFile
+	btnFormAddText
+	btnFormAddLoginPass
+	btnFormAddCard
+	btnSave
+	btnDelete
+)
 
 func updateBtns(m *Model) {
 	var currentBtn btn
@@ -15,24 +24,26 @@ func updateBtns(m *Model) {
 	m.cursor = 0
 	m.btns = make([]btn, 0)
 
-	var isScreenTable, isScreenFilepicker, isForm bool
-	switch m.screen.(type) {
+	var isScreenTable, isScreenFilepicker, isForm, formIsNew, formIsValid bool
+	switch model := m.screen.(type) {
 	case tableModel:
 		isScreenTable = true
 	case filepickerModel:
 		isScreenFilepicker = true
 	case form.Model:
 		isForm = true
+		formIsNew = model.IsNew()
+		formIsValid = model.IsValid
 	}
 
-	isWorkAvailable := m.app.GetPrivateKeyPath() != ""
+	isWorkAvailable := m.key.GetPrivateKeyPath() != ""
 
 	if isWorkAvailable {
 		if isForm {
-			if m.formIsValid {
+			if formIsValid {
 				m.btns = append(m.btns, btnSave)
 			}
-			if !m.formIsNew {
+			if !formIsNew {
 				m.btns = append(m.btns, btnDelete)
 			}
 		}
@@ -42,7 +53,7 @@ func updateBtns(m *Model) {
 			m.btns = append(m.btns, btnTable)
 		}
 	}
-	if !m.app.IsLogged() {
+	if !m.key.IsLogged() {
 		if isWorkAvailable {
 			m.btns = append(m.btns, btnLogin, btnRegister)
 		}

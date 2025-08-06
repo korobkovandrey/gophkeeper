@@ -27,31 +27,33 @@ func (m Model) View() string {
 	btnsStr := lipgloss.JoinHorizontal(lipgloss.Center, btns...)
 
 	var statusText string
-	if m.app.IsOnline() {
+	/*if m.key.IsOnline() {
 		statusText = onlineStyle.Render("ONLINE")
 	} else {
 		statusText = offlineStyle.Render("OFFLINE")
-	}
+	}*/
 
 	header := lipgloss.JoinHorizontal(lipgloss.Center,
 		headerStyle.Render("GophKeeper"), " ",
 		statusText, " ",
-		selectedStyle.Render(m.app.GetPrivateKeyPath()), " ",
-		m.app.Fingerprint(),
+		selectedStyle.Render(m.key.GetPrivateKeyPath()), " ",
+		m.key.Fingerprint(),
 	)
 
 	var body, help string
-	if m.msg != "" {
-		body = lipgloss.JoinVertical(lipgloss.Center,
-			msgStyle.Render(wordwrap.String(strings.Replace(m.msg, ": ", ":\n", 1), 100)),
-			selectedStyle.Render("press any key to return"))
-	} else if m.screen != nil {
-		body = m.screen.View()
-	}
 	help += "esc: change focus • tab: focus next • enter: select • ctrl+c, f10: exit"
-	m.debug = m.selectID
 	if m.debug != "" {
 		help += " debug: " + m.debug
+	}
+
+	if m.msg != "" {
+		body = lipgloss.JoinVertical(lipgloss.Center,
+			header,
+			msgStyle.Render(wordwrap.String(strings.Replace(m.msg, ": ", ":\n", 1), max(100, lipgloss.Width(header)))),
+			selectedStyle.Render("press any key to return"))
+		return lipgloss.JoinVertical(lipgloss.Left, body, btnsStr, helpStyle.Render(help))
+	} else if m.screen != nil {
+		body = m.screen.View()
 	}
 	return lipgloss.JoinVertical(lipgloss.Left, header, body, btnsStr, helpStyle.Render(help))
 }
