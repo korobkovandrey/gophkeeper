@@ -1,12 +1,12 @@
 package form
 
 import (
-	"gophkeeper/internal/client/tuiadapter"
+	"gophkeeper/internal/client/model"
 
 	"github.com/charmbracelet/bubbles/textinput"
 )
 
-func addMetas(m *Model, meta tuiadapter.Meta) {
+func addMetas(m *Model, meta model.Meta) {
 	for i := range meta {
 		key := textinput.New()
 		key.Width = 10
@@ -23,10 +23,10 @@ func addMetas(m *Model, meta tuiadapter.Meta) {
 	}
 }
 
-func (m Model) meta() tuiadapter.Meta {
-	meta := make(tuiadapter.Meta, len(m.metaKeys))
+func (m Model) meta() model.Meta {
+	meta := make(model.Meta, len(m.metaKeys))
 	for i := range m.metaKeys {
-		meta[i] = tuiadapter.MetaData{
+		meta[i] = model.MetaData{
 			Key: m.metaKeys[i].Value(),
 			Val: m.metaVals[i].Value(),
 		}

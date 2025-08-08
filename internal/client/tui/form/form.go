@@ -2,8 +2,8 @@ package form
 
 import (
 	"fmt"
+	"gophkeeper/internal/client/model"
 	"gophkeeper/internal/client/tui/cmd"
-	"gophkeeper/internal/client/tuiadapter"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/charmbracelet/bubbles/viewport"
@@ -30,7 +30,7 @@ type fieldsModel interface {
 }
 
 type Model struct {
-	id       string
+	id       model.ID
 	newID    textinput.Model
 	metaKeys []textinput.Model
 	metaVals []textinput.Model
@@ -41,7 +41,7 @@ type Model struct {
 	IsValid  bool
 }
 
-func NewModel(id string, fields fieldsModel, meta tuiadapter.Meta) Model {
+func NewModel(id model.ID, fields fieldsModel, meta model.Meta) Model {
 	vp := viewport.New(0, 0)
 	vp.MouseWheelEnabled = true
 	m := Model{
@@ -54,7 +54,7 @@ func NewModel(id string, fields fieldsModel, meta tuiadapter.Meta) Model {
 	m.newID.Placeholder = "ID"
 	m.newID.Prompt = "> "
 	m.newID.Width = 20
-	m.newID.SetValue(id)
+	m.newID.SetValue(string(id))
 	addMetas(&m, meta)
 	return m
 }
@@ -88,9 +88,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if !m.validate() {
 			return m, cmd.Msg("validate error")
 		}
-		switch model := m.model.(type) {
+		switch tModel := m.model.(type) {
 		case textModel:
-			c = cmd.SaveText(m.id, m.newID.Value(), model.text.Value(), m.meta())
+			c = cmd.SaveText(m.id, model.ID(m.newID.Value()), m.meta(), tModel.text.Value())
 		}
 		return m, c
 	case cmd.EventDeleteMsg:
@@ -104,7 +104,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, cmd.ScreenBlur()
 			}
 		case tea.KeyCtrlD:
-			addMetas(&m, tuiadapter.NewMeta("", ""))
+			addMetas(&m, model.NewMeta("", ""))
 			lenMetaInputs += 2
 			lenInputs += 2
 			if m.focused {
@@ -176,7 +176,7 @@ func (m Model) view() string {
 	if m.id == "" {
 		rows = append(rows, labelStyle.Render("Новый текст"))
 	} else {
-		rows = append(rows, labelStyle.Render("Обновление: ")+m.id)
+		rows = append(rows, labelStyle.Render("Обновление: ")+string(m.id))
 	}
 	newIDInput := m.newID.View()
 	if m.newID.Focused() {

@@ -6,11 +6,9 @@ import (
 	"gophkeeper/internal/client/grpcclient"
 	"gophkeeper/internal/client/service"
 	"gophkeeper/internal/client/tui"
-	"gophkeeper/internal/client/tui/cmd"
 	"gophkeeper/internal/client/tuiadapter"
 	"gophkeeper/pkg/logging"
 	"log"
-	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/joho/godotenv"
@@ -70,13 +68,10 @@ func main() {
 	t := service.NewTime()
 	keyAdapt := tuiadapter.NewKey(cfg, key)
 	authClient := grpcclient.NewAuthClient(conn, key, t)
-	storageAdapt := tuiadapter.NewStorage()
+	store := service.NewMemStore()
+	storage := service.NewStorage(key, store)
 
-	p := tea.NewProgram(tui.NewModel(ctx, keyAdapt, authClient, storageAdapt), tea.WithContext(ctx), tea.WithAltScreen())
-	go func() {
-		time.Sleep(5 * time.Second)
-		p.Send(cmd.NewChangeSecretsMsg(""))
-	}()
+	p := tea.NewProgram(tui.NewModel(ctx, keyAdapt, authClient, storage), tea.WithContext(ctx), tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
 		l.FatalCtx(ctx, "error starting program", zap.Error(err))
 	}

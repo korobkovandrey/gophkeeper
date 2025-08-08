@@ -59,53 +59,7 @@ func SignPSSWithTimestampAndUserID(privateKey *rsa.PrivateKey, userID, timestamp
 	return SignPSSWithTimestamp(privateKey, timestamp, HashData(append(data, userIDBytes)...))
 }
 
-const oaep256Size = 66
-
-func IsWithAESKeyEncrypting(publicKey *rsa.PublicKey, data []byte) bool {
-	return len(data) > publicKey.Size()-oaep256Size
-}
-
-func Encrypt(publicKey *rsa.PublicKey, data []byte) (encryptedData []byte, err error) {
-	if IsWithAESKeyEncrypting(publicKey, data) {
-		return nil, fmt.Errorf("data too long for RSA encryption")
-	}
-	return rsa.EncryptOAEP(sha256.New(), rand.Reader, publicKey, data, nil)
-}
-
-func EncryptWithAESKey(publicKey *rsa.PublicKey, data []byte) (encryptedAESKey, encryptedData []byte, err error) {
-	aesKey := make([]byte, 32)
-	if _, err := rand.Read(aesKey); err != nil {
-		return nil, nil, fmt.Errorf("failed to generate AES key: %w", err)
-	}
-	encryptedAESKey, err = Encrypt(publicKey, aesKey)
-	if err != nil {
-		return nil, nil, fmt.Errorf("RSA encryption failed: %w", err)
-	}
-	block, err := aes.NewCipher(aesKey)
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to create AES cipher: %w", err)
-	}
-	gcm, err := cipher.NewGCM(block)
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to create GCM: %v", err)
-	}
-	nonce := make([]byte, gcm.NonceSize())
-	if _, err := rand.Read(nonce); err != nil {
-		return nil, nil, fmt.Errorf("failed to generate nonce: %v", err)
-	}
-	encryptedData = gcm.Seal(nonce, nonce, data, nil)
-
-	return encryptedAESKey, encryptedData, nil
-}
-
 func Decrypt(privateKey *rsa.PrivateKey, encryptedAESKey, encryptedData []byte) (data []byte, err error) {
-	if len(encryptedAESKey) == 0 {
-		data, err = rsa.DecryptOAEP(sha256.New(), rand.Reader, privateKey, encryptedData, nil)
-		if err != nil {
-			return nil, fmt.Errorf("RSA decryption failed: %w", err)
-		}
-		return data, nil
-	}
 	aesKey, err := rsa.DecryptOAEP(sha256.New(), rand.Reader, privateKey, encryptedAESKey, nil)
 	if err != nil {
 		return nil, fmt.Errorf("RSA key decryption failed: %w", err)

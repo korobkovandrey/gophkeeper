@@ -1,8 +1,9 @@
 package tui
 
 import (
+	"gophkeeper/internal/client/model"
 	"gophkeeper/internal/client/tui/cmd"
-	"gophkeeper/internal/client/tuiadapter"
+	"time"
 
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
@@ -11,7 +12,7 @@ import (
 
 type tableModel struct {
 	table.Model
-	ids []string
+	ids []model.ID
 }
 
 func newTableModel() tableModel {
@@ -19,7 +20,7 @@ func newTableModel() tableModel {
 		{Title: "Статус", Width: 10},
 		{Title: "Тип", Width: 10},
 		{Title: "ID", Width: 30},
-		{Title: "Meta", Width: 40},
+		{Title: "MetaFields", Width: 40},
 		{Title: "Created", Width: 20},
 		{Title: "Updated", Width: 20},
 	}
@@ -63,17 +64,20 @@ func (m tableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, cmd.ShowFormID(m.ids[cursor])
 			}
 		}
-	case cmd.RowsMsg:
+	case cmd.UpdateTableMsg:
 		selectID := tMsg.ID
 		cursor := m.Model.Cursor()
-		if selectID == "" {
-			if cursor >= 0 && cursor < len(m.ids) {
-				selectID = m.ids[cursor]
-			}
-		}
 		var rows []table.Row
 		var newCursor int
-		rows, m.ids, newCursor = rowsToTableRows(selectID, tMsg.Rows)
+		rows, m.ids, newCursor = secretsToTableRows(selectID, tMsg.Secrets)
+		if selectID == "" {
+			if cursor >= 0 {
+				newCursor = cursor
+				if newCursor >= len(m.ids) {
+					newCursor = len(m.ids) - 1
+				}
+			}
+		}
 		m.Model.SetRows(rows)
 		if cursor != newCursor {
 			m.Model.SetCursor(newCursor)
@@ -88,23 +92,45 @@ func (m tableModel) View() string {
 	return tableBaseStyle.Render(m.Model.View())
 }
 
-func rowsToTableRows(id string, rows []tuiadapter.Row) ([]table.Row, []string, int) {
-	r := make([]table.Row, len(rows))
-	ids := make([]string, len(rows))
+func secretsToTableRows(id model.ID, secrets []*model.Secret) ([]table.Row, []model.ID, int) {
+	r := make([]table.Row, len(secrets))
+	ids := make([]model.ID, len(secrets))
 	cursor := 0
-	for i := range rows {
+	for i := range secrets {
 		r[i] = table.Row{
-			rows[i].Status,
-			rows[i].Type,
-			rows[i].ID,
-			rows[i].Meta,
-			rows[i].Created,
-			rows[i].Updated,
+			"",
+			"",
+			string(secrets[i].ID),
+			secrets[i].DecryptMeta.ToString(),
+			secrets[i].CreatedAt.Format(time.DateTime),
+			secrets[i].UpdatedAt.Format(time.DateTime),
 		}
-		if rows[i].ID == id {
+		switch secrets[i].Status {
+		case model.StatusSynced:
+			r[i][0] = "Сохранен"
+		case model.StatusDeleting:
+			r[i][0] = "Удаление"
+		case model.StatusNew:
+			r[i][0] = "Новый"
+		case model.StatusUpdating:
+			r[i][0] = "Изменен"
+		default:
+			r[i][0] = "Неизвестно"
+		}
+		switch secrets[i].Type {
+		case model.TypeText:
+			r[i][1] = "Текст"
+		case model.TypeLoginPass:
+			r[i][1] = "Логин/Пароль"
+		case model.TypeCard:
+			r[i][1] = "Карта"
+		default:
+			r[i][1] = "Неизвестно"
+		}
+		if secrets[i].ID == id {
 			cursor = i
 		}
-		ids[i] = rows[i].ID
+		ids[i] = secrets[i].ID
 	}
 	return r, ids, cursor
 }

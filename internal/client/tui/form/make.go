@@ -1,7 +1,9 @@
 package form
 
-import "gophkeeper/internal/client/tuiadapter"
+import (
+	"gophkeeper/internal/client/model"
+)
 
-func MakeFormTextModel(id, text string, meta tuiadapter.Meta) Model {
+func MakeFormTextModel(id model.ID, meta model.Meta, text string) Model {
 	return NewModel(id, newTextModel(text), meta)
 }

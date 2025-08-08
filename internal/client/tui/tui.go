@@ -2,9 +2,10 @@ package tui
 
 import (
 	"context"
+	"gophkeeper/internal/client/model"
+	"gophkeeper/internal/client/service"
 	"gophkeeper/internal/client/tui/cmd"
 	"gophkeeper/internal/client/tui/form"
-	"gophkeeper/internal/client/tuiadapter"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -22,17 +23,11 @@ type authClient interface {
 	//IsOnline() bool
 }
 
-type storageService interface {
-	List() []tuiadapter.Row
-	SaveText(id, newID, text string) (string, error)
-	Delete(id string) error
-}
-
 type Model struct {
 	ctx     context.Context
 	key     keyService
 	auth    authClient
-	storage *tuiadapter.Storage
+	storage *service.Storage
 
 	msg    string
 	table  tea.Model
@@ -46,7 +41,7 @@ type Model struct {
 	initialized bool
 }
 
-func NewModel(ctx context.Context, key keyService, auth authClient, storage *tuiadapter.Storage) Model {
+func NewModel(ctx context.Context, key keyService, auth authClient, storage *service.Storage) Model {
 	m := Model{
 		ctx:     ctx,
 		key:     key,
@@ -99,7 +94,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.focused {
 				return m, cmd.ScreenFocus()
 			}
-			return m, cmd.ScreenBlur()
+			if _, ok := m.screen.(filepickerModel); !ok {
+				return m, cmd.ScreenBlur()
+			}
 		}
 	case cmd.ScreenFocusMsg:
 		m.focused = false
@@ -115,7 +112,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if err != nil {
 			return m, cmd.Msg(err.Error())
 		}
-		return m, nil
+		m.storage.Clear()
+		return m, cmd.UpdateTable("", m.storage.List())
 	case cmd.ShowFilepickerMsg:
 		m.screen = newFilepickerModel()
 		return m, tea.Sequence(cmd.ScreenFocus(), m.screen.Init(), tea.WindowSize(), cmd.UpdateBtns())
@@ -123,40 +121,36 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.screen = m.table
 		return m, tea.Sequence(cmd.ScreenFocus(), tea.WindowSize(), cmd.UpdateBtns())
 	case cmd.ShowFormIDMsg:
-		t, err := m.storage.Type(string(tMsg))
+		t, err := m.storage.Type(tMsg.ID)
 		if err != nil {
 			return m, cmd.Msg(err.Error())
 		}
 		switch t {
-		case tuiadapter.DataTypeText:
-			data, err := m.storage.DataText(string(tMsg))
+		case model.TypeText:
+			data, meta, err := m.storage.DataText(tMsg.ID)
 			if err != nil {
 				return m, cmd.Msg(err.Error())
 			}
-			return m, cmd.ShowFormText(data.ID, data.Text, data.Meta)
+			return m, cmd.ShowFormText(tMsg.ID, meta, data.Text)
+		default:
 		}
 		return m, nil
 	case cmd.ShowFormTextMsg:
-		m.screen = form.MakeFormTextModel(tMsg.ID, tMsg.Text, tMsg.Meta)
+		m.screen = form.MakeFormTextModel(tMsg.ID, tMsg.Meta, tMsg.Text)
 		return m, tea.Sequence(cmd.ScreenFocus(), m.screen.Init(), tea.WindowSize(), cmd.UpdateBtns())
-	case tuiadapter.ChangeMsg:
-		switch m.screen.(type) {
-		case tableModel:
-			return m, cmd.TableRows(tMsg.ID, m.storage.List())
+	case cmd.UpdateTableMsg:
+		if _, ok := m.screen.(tableModel); !ok {
+			m.table, _ = m.table.Update(tMsg)
+			return m, nil
 		}
-		var c tea.Cmd
-		m.table, c = m.table.Update(cmd.NewRowsMsg(tMsg.ID, m.storage.List()))
-		return m, c
 	case cmd.SaveTextMsg:
-		if err := m.storage.SaveText(tMsg.ID, tMsg.NewID, tMsg.Text, tMsg.Meta); err != nil {
+		if err := m.storage.SaveText(tMsg.ID, tMsg.NewID, tMsg.Meta, tMsg.Text); err != nil {
 			return m, cmd.Msg(err.Error())
 		}
-		return m, cmd.ShowTable()
+		return m, tea.Sequence(cmd.ShowTable(), cmd.UpdateTable(tMsg.NewID, m.storage.List()))
 	case cmd.DeleteIDMsg:
-		if err := m.storage.Delete(string(tMsg)); err != nil {
-			return m, cmd.Msg(err.Error())
-		}
-		return m, cmd.ShowTable()
+		m.storage.Delete(tMsg.ID)
+		return m, tea.Sequence(cmd.ShowTable(), cmd.UpdateTable("", m.storage.List()))
 	}
 
 	if m.focused {
@@ -174,14 +168,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.cursor = 0
 					return m, cmd.ScreenFocus()
 				}
-			case tea.KeyUp:
+			case tea.KeyUp, tea.KeyLeft:
 				if m.cursor > 0 {
 					m.cursor--
 				} else {
 					m.cursor = len(m.btns) - 1
 				}
 				return m, nil
-			case tea.KeyDown:
+			case tea.KeyDown, tea.KeyRight:
 				if m.cursor < len(m.btns)-1 {
 					m.cursor++
 				} else {
@@ -210,7 +204,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						c = cmd.ShowTable()
 					}
 				case btnFormAddText:
-					return m, cmd.ShowFormText("", "", tuiadapter.NewMeta(""))
+					return m, cmd.ShowFormText("", model.NewMeta(""), "")
 				case btnSave:
 					return m, cmd.EventSave()
 				case btnDelete:
@@ -232,9 +226,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	var c tea.Cmd
 	m.screen, c = m.screen.Update(msg)
-	switch screenModel := m.screen.(type) {
-	case tableModel:
-		m.table = screenModel
+	if t, ok := m.screen.(tableModel); ok {
+		m.table = t
 	}
 	return m, c
 }

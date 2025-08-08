@@ -41,7 +41,12 @@ func (m Model) View() string {
 	)
 
 	var body, help string
-	help += "esc: change focus • tab: focus next • enter: select • ctrl+c, f10: exit"
+	if _, ok := m.screen.(filepickerModel); ok {
+		help = "esc: parent directory"
+	} else {
+		help = "esc: change focus"
+	}
+	help += " • tab: focus next • enter: select • ctrl+c, f10: exit"
 	if m.debug != "" {
 		help += " debug: " + m.debug
 	}

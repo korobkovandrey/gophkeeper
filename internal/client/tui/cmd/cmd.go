@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"gophkeeper/internal/client/tuiadapter"
+	"gophkeeper/internal/client/model"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -24,17 +24,16 @@ type ShowFilepickerMsg struct{}
 type ChangeSecretsMsg struct {
 	ID string
 }
-type RowsMsg struct {
-	ID   string
-	Rows []tuiadapter.Row
+type UpdateTableMsg struct {
+	ID      model.ID
+	Secrets []*model.Secret
 }
 type ShowTableMsg struct{}
 type ScreenFocusMsg struct{}
 type ScreenBlurMsg struct{}
-type SelectIDMsg string
 
-func NewRowsMsg(id string, rows []tuiadapter.Row) tea.Msg {
-	return RowsMsg{ID: id, Rows: rows}
+func NewUpdateTableMsg(id model.ID, secrets []*model.Secret) tea.Msg {
+	return UpdateTableMsg{ID: id, Secrets: secrets}
 }
 
 func NewChangeSecretsMsg(id string) tea.Msg {
@@ -65,14 +64,10 @@ func ShowTable() tea.Cmd {
 	return NewCmd(ShowTableMsg{})
 }
 
-func TableRows(id string, rows []tuiadapter.Row) tea.Cmd {
-	return NewCmd(NewRowsMsg(id, rows))
+func UpdateTable(id model.ID, secrets []*model.Secret) tea.Cmd {
+	return NewCmd(NewUpdateTableMsg(id, secrets))
 }
 
 func ChangeSecrets(id string) tea.Cmd {
 	return NewCmd(NewChangeSecretsMsg(id))
-}
-
-func SelectID(id string) tea.Cmd {
-	return NewCmd(SelectIDMsg(id))
 }
