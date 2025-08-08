@@ -20,7 +20,7 @@ func newTableModel() tableModel {
 		{Title: "Статус", Width: 10},
 		{Title: "Тип", Width: 10},
 		{Title: "ID", Width: 30},
-		{Title: "MetaFields", Width: 40},
+		{Title: "Meta", Width: 40},
 		{Title: "Created", Width: 20},
 		{Title: "Updated", Width: 20},
 	}

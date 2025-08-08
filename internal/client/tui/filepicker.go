@@ -40,11 +40,8 @@ func (m filepickerModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if !m.focused {
 		return m, nil
 	}
-	switch tMsg := msg.(type) {
-	case tea.KeyMsg:
-		if tMsg.Type == tea.KeyTab {
-			return m, cmd.ScreenBlur()
-		}
+	if tMsg, ok := msg.(tea.KeyMsg); ok && tMsg.Type == tea.KeyTab {
+		return m, cmd.ScreenBlur()
 	}
 	var c tea.Cmd
 	m.Model, c = m.Model.Update(msg)

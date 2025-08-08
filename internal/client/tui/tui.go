@@ -74,6 +74,7 @@ func (m Model) Init() tea.Cmd {
 	return tea.Batch(tea.SetWindowTitle("Gophkeeper"), c)
 }
 
+//nolint:gocyclo,funlen // ignore
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch tMsg := msg.(type) {
 	case tea.WindowSizeMsg:

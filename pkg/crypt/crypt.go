@@ -11,6 +11,11 @@ import (
 	"fmt"
 )
 
+const (
+	AESKeySize    = 32
+	Int64BytesLen = 8
+)
+
 func HashData(data ...[]byte) []byte {
 	hasher := sha256.New()
 	for _, d := range data {
@@ -32,19 +37,19 @@ func SignPSS(privateKey *rsa.PrivateKey, data ...[]byte) ([]byte, error) {
 }
 
 func VerifyPSSWithTimestamp(rsaPublicKey *rsa.PublicKey, signature []byte, timestamp int64, data ...[]byte) bool {
-	timestampBytes := make([]byte, 8)
+	timestampBytes := make([]byte, Int64BytesLen)
 	binary.BigEndian.PutUint64(timestampBytes, uint64(timestamp))
 	return rsa.VerifyPSS(rsaPublicKey, crypto.SHA256, HashData(append(data, timestampBytes)...), signature, nil) == nil
 }
 
 func VerifyPSSWithTimestampAndUserID(rsaPublicKey *rsa.PublicKey, signature []byte, userID, timestamp int64, data ...[]byte) bool {
-	userIDBytes := make([]byte, 8)
+	userIDBytes := make([]byte, Int64BytesLen)
 	binary.LittleEndian.PutUint64(userIDBytes, uint64(userID))
 	return VerifyPSSWithTimestamp(rsaPublicKey, signature, timestamp, HashData(append(data, userIDBytes)...))
 }
 
 func SignPSSWithTimestamp(privateKey *rsa.PrivateKey, timestamp int64, data ...[]byte) ([]byte, error) {
-	timestampBytes := make([]byte, 8)
+	timestampBytes := make([]byte, Int64BytesLen)
 	binary.BigEndian.PutUint64(timestampBytes, uint64(timestamp))
 	signature, err := rsa.SignPSS(rand.Reader, privateKey, crypto.SHA256, HashData(append(data, timestampBytes)...), nil)
 	if err != nil {
@@ -54,7 +59,7 @@ func SignPSSWithTimestamp(privateKey *rsa.PrivateKey, timestamp int64, data ...[
 }
 
 func SignPSSWithTimestampAndUserID(privateKey *rsa.PrivateKey, userID, timestamp int64, data ...[]byte) ([]byte, error) {
-	userIDBytes := make([]byte, 8)
+	userIDBytes := make([]byte, Int64BytesLen)
 	binary.LittleEndian.PutUint64(userIDBytes, uint64(userID))
 	return SignPSSWithTimestamp(privateKey, timestamp, HashData(append(data, userIDBytes)...))
 }

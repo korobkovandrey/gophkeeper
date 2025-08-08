@@ -49,8 +49,7 @@ func (m Meta) MarshalWithType(typ Type) ([]byte, error) {
 }
 
 func UnmarshalMetaAndType(data []byte) (Meta, Type, error) {
-	var typ Type
-	typ = Type(data[0])
+	typ := Type(data[0])
 	var meta Meta
 	if err := json.Unmarshal(data[1:], &meta); err != nil {
 		return nil, typ, fmt.Errorf("failed to unmarshal meta: %w", err)

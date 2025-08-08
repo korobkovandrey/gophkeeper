@@ -46,15 +46,16 @@ func (s *SecretService) List(ctx context.Context, userID int64) ([]*Secret, erro
 	if err != nil {
 		return nil, fmt.Errorf("failed to list secrets: %w", err)
 	}
-	var secrets []*Secret
-	for _, qSecret := range qSecrets {
-		secrets = append(secrets, newSecretFromQuerySecret(qSecret))
+	secrets := make([]*Secret, len(qSecrets))
+	for i := range qSecrets {
+		secrets[i] = newSecretFromQuerySecret(qSecrets[i])
 	}
 	return secrets, nil
 }
 
-func (s *SecretService) Store(ctx context.Context, userID int64, id, newID string, crypt, meta, data []byte, storeTime time.Time) (*Secret, error) {
-	qSecret, err := s.r.FindSecret(ctx, query.FindSecretParams{
+func (s *SecretService) Store(ctx context.Context, userID int64,
+	id, newID string, crypt, meta, data []byte, storeTime time.Time) (*Secret, error) {
+	_, err := s.r.FindSecret(ctx, query.FindSecretParams{
 		ID:     id,
 		UserID: userID,
 	})
@@ -62,7 +63,7 @@ func (s *SecretService) Store(ctx context.Context, userID int64, id, newID strin
 		if !errors.Is(err, sql.ErrNoRows) {
 			return nil, fmt.Errorf("failed to find: %w", err)
 		}
-		qSecret, err = s.r.CreateSecret(ctx, query.CreateSecretParams{
+		qSecret, err := s.r.CreateSecret(ctx, query.CreateSecretParams{
 			ID:        newID,
 			UserID:    userID,
 			Crypt:     crypt,
@@ -77,7 +78,7 @@ func (s *SecretService) Store(ctx context.Context, userID int64, id, newID strin
 			return nil, fmt.Errorf("failed to create: %w", err)
 		}
 	}
-	qSecret, err = s.r.UpdateSecret(ctx, query.UpdateSecretParams{
+	qSecret, err := s.r.UpdateSecret(ctx, query.UpdateSecretParams{
 		ID:        id,
 		ID_2:      newID,
 		UserID:    userID,

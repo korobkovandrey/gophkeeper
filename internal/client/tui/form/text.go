@@ -15,7 +15,8 @@ func newTextModel(text string) textModel {
 		text: textarea.New(),
 	}
 	m.text.Placeholder = "Text"
-	m.text.SetWidth(60)
+	const textAreaWidth = 60
+	m.text.SetWidth(textAreaWidth)
 	m.text.ShowLineNumbers = true
 	m.text.Blur()
 	m.text.SetValue(text)

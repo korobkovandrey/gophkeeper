@@ -96,7 +96,7 @@ func (s *ServiceServer) Register(ctx context.Context, req *proto.RegisterRequest
 // Login аутентифицирует пользователя по подписи.
 func (s *ServiceServer) Login(ctx context.Context, req *proto.LoginRequest) (*proto.AuthResponse, error) {
 	startTime := timestamppb.Now()
-	if len(req.Fingerprint) == 0 {
+	if req.Fingerprint == "" {
 		return nil, status.Error(codes.InvalidArgument, "Fingerprint is required")
 	}
 	if len(req.Signature) == 0 {

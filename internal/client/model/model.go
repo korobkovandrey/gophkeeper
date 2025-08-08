@@ -7,6 +7,7 @@ import (
 	"crypto/rsa"
 	"crypto/sha256"
 	"fmt"
+	"gophkeeper/pkg/crypt"
 	"time"
 )
 
@@ -71,7 +72,7 @@ func NewSecret(id ID, typ Type, meta Meta, data []byte, publicKey *rsa.PublicKey
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal meta with type: %w", err)
 	}
-	aesKey := make([]byte, 32)
+	aesKey := make([]byte, crypt.AESKeySize)
 	_, err = rand.Read(aesKey)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate AES key: %w", err)

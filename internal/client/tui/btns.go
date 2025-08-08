@@ -16,6 +16,7 @@ const (
 	btnDelete
 )
 
+//nolint:gocyclo // ignore
 func updateBtns(m *Model) {
 	var currentBtn btn
 	if len(m.btns) > m.cursor {

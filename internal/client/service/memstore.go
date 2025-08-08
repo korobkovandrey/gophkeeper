@@ -77,9 +77,7 @@ func (ms *MemStore) Deleting(id model.ID) {
 func (ms *MemStore) Delete(id model.ID) {
 	ms.mutex.Lock()
 	defer ms.mutex.Unlock()
-	if _, ok := ms.store[id]; ok {
-		delete(ms.store, id)
-	}
+	delete(ms.store, id)
 }
 
 func (ms *MemStore) List() []*model.Secret {

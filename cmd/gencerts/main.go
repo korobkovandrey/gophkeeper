@@ -16,6 +16,7 @@ import (
 	"time"
 )
 
+//nolint:gocyclo,funlen,mnd // ignore
 func main() {
 	org := flag.String("org", "Yandex.Praktikum", "Organization name")
 	country := flag.String("country", "RU", "Country code")
@@ -30,13 +31,12 @@ func main() {
 	flag.Parse()
 
 	ipList := strings.Split(*ips, ",")
-	var ipAddresses []net.IP
-	for _, ipStr := range ipList {
-		ip := net.ParseIP(strings.TrimSpace(ipStr))
-		if ip == nil {
-			log.Fatalf("Invalid IP address: %s", ipStr)
+	ipAddresses := make([]net.IP, len(ipList))
+	for i := range ipList {
+		ipAddresses[i] = net.ParseIP(strings.TrimSpace(ipList[i]))
+		if ipAddresses[i] == nil {
+			log.Fatalf("Invalid IP address: %s", ipList[i])
 		}
-		ipAddresses = append(ipAddresses, ip)
 	}
 	dnsNames := strings.Split(*dns, ",")
 	for i, name := range dnsNames {
@@ -75,7 +75,7 @@ func main() {
 		log.Fatalf("Failed to encode CA certificate: %v", err)
 	}
 
-	err = os.WriteFile(*caFile, caCertPEM.Bytes(), 0644)
+	err = os.WriteFile(*caFile, caCertPEM.Bytes(), 0600)
 	if err != nil {
 		log.Fatalf("Failed to write CA certificate to %s: %v", *caFile, err)
 	}
@@ -123,7 +123,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to encode server private key: %v", err)
 	}
-	err = os.WriteFile(*certFile, certPEM.Bytes(), 0644)
+	err = os.WriteFile(*certFile, certPEM.Bytes(), 0600)
 	if err != nil {
 		log.Fatalf("Failed to write server certificate to %s: %v", *certFile, err)
 	}

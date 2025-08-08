@@ -20,6 +20,8 @@ var (
 	unfocusedInvalidStyle = inputStyle.BorderForeground(lipgloss.Color("#450202"))
 )
 
+const prompt = "> "
+
 type fieldsModel interface {
 	update(tea.Msg) (fieldsModel, tea.Cmd)
 	view() string
@@ -52,7 +54,7 @@ func NewModel(id model.ID, fields fieldsModel, meta model.Meta) Model {
 		cursor:   -1,
 	}
 	m.newID.Placeholder = "ID"
-	m.newID.Prompt = "> "
+	m.newID.Prompt = prompt
 	m.newID.Width = 20
 	m.newID.SetValue(string(id))
 	addMetas(&m, meta)
@@ -63,6 +65,7 @@ func (m Model) Init() tea.Cmd {
 	return nil
 }
 
+//nolint:gocyclo // ignore
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var c tea.Cmd
 	m.viewport, c = m.viewport.Update(msg)
@@ -71,8 +74,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 	newCursor := m.cursor
 	lenModelInputs := m.model.lenInputs()
-	lenMetaInputs := len(m.metaKeys) * 2
-	lenInputs := 1 + lenModelInputs + lenMetaInputs
+	lenInputs := 1 + lenModelInputs + len(m.metaKeys)*2
 	focused := m.focused
 	isValid := m.IsValid
 	switch msg := msg.(type) {
@@ -105,10 +107,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case tea.KeyCtrlD:
 			addMetas(&m, model.NewMeta("", ""))
-			lenMetaInputs += 2
-			lenInputs += 2
 			if m.focused {
-				newCursor = lenInputs - 2
+				// lenInputs += 2, newCursor = lenInputs - 2
+				newCursor = lenInputs
 			}
 		}
 	}

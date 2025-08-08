@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"gophkeeper/internal/server/service"
+	"gophkeeper/pkg/crypt"
 	"gophkeeper/pkg/proto"
 	"time"
 
@@ -78,7 +79,7 @@ func WithSecretService(ss secretService) Option {
 
 // Store сохраняет секрет.
 func (s *ServiceServer) Store(ctx context.Context, req *proto.SecretStoreRequest) (*proto.Secret, error) {
-	b := make([]byte, 8)
+	b := make([]byte, crypt.Int64BytesLen)
 	binary.LittleEndian.PutUint64(b, uint64(req.EventTime))
 	user, err := s.findAndAuthUser(ctx, req.Auth, []byte(req.Auth.Id), []byte(req.Id),
 		req.Crypt, req.Meta, req.Data, b)
@@ -107,7 +108,7 @@ func (s *ServiceServer) Store(ctx context.Context, req *proto.SecretStoreRequest
 
 // Delete удаляет секрет.
 func (s *ServiceServer) Delete(ctx context.Context, req *proto.SecretDeleteRequest) (*proto.Secret, error) {
-	b := make([]byte, 8)
+	b := make([]byte, crypt.Int64BytesLen)
 	binary.LittleEndian.AppendUint64(b, uint64(req.EventTime))
 	user, err := s.findAndAuthUser(ctx, req.Auth, b)
 	if err != nil {

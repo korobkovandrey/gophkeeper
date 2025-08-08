@@ -29,6 +29,9 @@ func (s *Storage) save(id, newID model.ID, meta model.Meta, dataModel any) error
 		return fmt.Errorf("failed to marshal data: %w", err)
 	}
 	secret, err := model.NewSecret(newID, model.TypeText, meta, data, &s.key.PrivateKey.PublicKey)
+	if err != nil {
+		return fmt.Errorf("failed to create secret: %w", err)
+	}
 	err = s.m.Store(id, secret)
 	if err != nil {
 		return fmt.Errorf("failed to store secret: %w", err)
