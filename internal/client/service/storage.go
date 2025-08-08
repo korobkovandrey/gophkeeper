@@ -28,7 +28,18 @@ func (s *Storage) save(id, newID model.ID, meta model.Meta, dataModel any) error
 	if err != nil {
 		return fmt.Errorf("failed to marshal data: %w", err)
 	}
-	secret, err := model.NewSecret(newID, model.TypeText, meta, data, &s.key.PrivateKey.PublicKey)
+	var typ model.Type
+	switch dataModel.(type) {
+	case model.DataText:
+		typ = model.TypeText
+	case model.DataLoginPass:
+		typ = model.TypeLoginPass
+	case model.DataCard:
+		typ = model.TypeCard
+	default:
+		return fmt.Errorf("unknown data type: %T", dataModel)
+	}
+	secret, err := model.NewSecret(newID, typ, meta, data, &s.key.PrivateKey.PublicKey)
 	if err != nil {
 		return fmt.Errorf("failed to create secret: %w", err)
 	}
@@ -43,11 +54,31 @@ func (s *Storage) SaveText(id, newID model.ID, meta model.Meta, text string) err
 	return s.save(id, newID, meta, model.DataText{Text: text})
 }
 
+func (s *Storage) SaveLoginPass(id, newID model.ID, meta model.Meta, login, pass string) error {
+	return s.save(id, newID, meta, model.DataLoginPass{Login: login, Pass: pass})
+}
+
+func (s *Storage) SaveCard(id, newID model.ID, meta model.Meta, ccn, expire, cvv string) error {
+	return s.save(id, newID, meta, model.DataCard{CCN: ccn, Expire: expire, CVV: cvv})
+}
+
 func (s *Storage) DataText(id model.ID) (model.DataText, model.Meta, error) {
+	return decryptSecret[model.DataText](s, id)
+}
+
+func (s *Storage) DataLoginPass(id model.ID) (model.DataLoginPass, model.Meta, error) {
+	return decryptSecret[model.DataLoginPass](s, id)
+}
+
+func (s *Storage) DataCard(id model.ID) (model.DataCard, model.Meta, error) {
+	return decryptSecret[model.DataCard](s, id)
+}
+
+func decryptSecret[T any](s *Storage, id model.ID) (T, model.Meta, error) {
 	secret := s.m.Get(id)
-	data := model.DataText{}
+	var data T
 	if secret == nil {
-		return model.DataText{}, model.Meta{}, fmt.Errorf("secret not found %v", id)
+		return data, model.Meta{}, fmt.Errorf("secret not found %v", id)
 	}
 	decryptData, err := crypt.Decrypt(s.key.PrivateKey, secret.Crypt, secret.Data)
 	if err != nil {

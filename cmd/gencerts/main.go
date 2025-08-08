@@ -16,7 +16,6 @@ import (
 	"time"
 )
 
-//nolint:gocyclo,funlen,mnd // ignore
 func main() {
 	org := flag.String("org", "Yandex.Praktikum", "Organization name")
 	country := flag.String("country", "RU", "Country code")

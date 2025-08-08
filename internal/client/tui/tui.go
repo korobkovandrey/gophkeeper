@@ -74,7 +74,6 @@ func (m Model) Init() tea.Cmd {
 	return tea.Batch(tea.SetWindowTitle("Gophkeeper"), c)
 }
 
-//nolint:gocyclo,funlen // ignore
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch tMsg := msg.(type) {
 	case tea.WindowSizeMsg:
@@ -133,11 +132,29 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, cmd.Msg(err.Error())
 			}
 			return m, cmd.ShowFormText(tMsg.ID, meta, data.Text)
+		case model.TypeLoginPass:
+			data, meta, err := m.storage.DataLoginPass(tMsg.ID)
+			if err != nil {
+				return m, cmd.Msg(err.Error())
+			}
+			return m, cmd.ShowFormLoginPass(tMsg.ID, meta, data.Login, data.Pass)
+		case model.TypeCard:
+			data, meta, err := m.storage.DataCard(tMsg.ID)
+			if err != nil {
+				return m, cmd.Msg(err.Error())
+			}
+			return m, cmd.ShowFormCard(tMsg.ID, meta, data.CCN, data.Expire, data.CVV)
 		default:
 		}
 		return m, nil
 	case cmd.ShowFormTextMsg:
 		m.screen = form.MakeFormTextModel(tMsg.ID, tMsg.Meta, tMsg.Text)
+		return m, tea.Sequence(cmd.ScreenFocus(), m.screen.Init(), tea.WindowSize(), cmd.UpdateBtns())
+	case cmd.ShowFormLoginPassMsg:
+		m.screen = form.MakeFormLoginPassModel(tMsg.ID, tMsg.Meta, tMsg.Login, tMsg.Pass)
+		return m, tea.Sequence(cmd.ScreenFocus(), m.screen.Init(), tea.WindowSize(), cmd.UpdateBtns())
+	case cmd.ShowFormCardMsg:
+		m.screen = form.MakeFormCardModel(tMsg.ID, tMsg.Meta, tMsg.CCN, tMsg.Expire, tMsg.CVV)
 		return m, tea.Sequence(cmd.ScreenFocus(), m.screen.Init(), tea.WindowSize(), cmd.UpdateBtns())
 	case cmd.UpdateTableMsg:
 		if _, ok := m.screen.(tableModel); !ok {
@@ -146,6 +163,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	case cmd.SaveTextMsg:
 		if err := m.storage.SaveText(tMsg.ID, tMsg.NewID, tMsg.Meta, tMsg.Text); err != nil {
+			return m, cmd.Msg(err.Error())
+		}
+		return m, tea.Sequence(cmd.ShowTable(), cmd.UpdateTable(tMsg.NewID, m.storage.List()))
+	case cmd.SaveLoginPassMsg:
+		if err := m.storage.SaveLoginPass(tMsg.ID, tMsg.NewID, tMsg.Meta, tMsg.Login, tMsg.Pass); err != nil {
+			return m, cmd.Msg(err.Error())
+		}
+		return m, tea.Sequence(cmd.ShowTable(), cmd.UpdateTable(tMsg.NewID, m.storage.List()))
+	case cmd.SaveCardMsg:
+		if err := m.storage.SaveCard(tMsg.ID, tMsg.NewID, tMsg.Meta, tMsg.CCN, tMsg.Expire, tMsg.CVV); err != nil {
 			return m, cmd.Msg(err.Error())
 		}
 		return m, tea.Sequence(cmd.ShowTable(), cmd.UpdateTable(tMsg.NewID, m.storage.List()))
@@ -206,6 +233,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					}
 				case btnFormAddText:
 					return m, cmd.ShowFormText("", model.NewMeta(""), "")
+				case btnFormAddLoginPass:
+					return m, cmd.ShowFormLoginPass("", model.NewMeta(""), "", "")
+				case btnFormAddCard:
+					return m, cmd.ShowFormCard("", model.NewMeta(""), "", "", "")
 				case btnSave:
 					return m, cmd.EventSave()
 				case btnDelete:

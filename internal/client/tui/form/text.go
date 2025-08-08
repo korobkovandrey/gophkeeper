@@ -31,17 +31,18 @@ func (m textModel) update(msg tea.Msg) (fieldsModel, tea.Cmd) {
 
 func (m textModel) view() string {
 	textInput := m.text.View()
+	isValid := requiredValidator(m.text.Value()) == nil
 	if m.text.Focused() {
-		if m.text.Value() == "" {
-			textInput = focusedInvalidStyle.Render(textInput)
-		} else {
+		if isValid {
 			textInput = focusedStyle.Render(textInput)
+		} else {
+			textInput = focusedInvalidStyle.Render(textInput)
 		}
 	} else {
-		if m.text.Value() == "" {
-			textInput = unfocusedInvalidStyle.Render(textInput)
-		} else {
+		if isValid {
 			textInput = unfocusedStyle.Render(textInput)
+		} else {
+			textInput = unfocusedInvalidStyle.Render(textInput)
 		}
 	}
 	return lipgloss.JoinVertical(lipgloss.Left,
@@ -69,5 +70,5 @@ func (m textModel) blur(f int) fieldsModel {
 }
 
 func (m textModel) isValid() bool {
-	return m.text.Value() != ""
+	return requiredValidator(m.text.Value()) == nil
 }

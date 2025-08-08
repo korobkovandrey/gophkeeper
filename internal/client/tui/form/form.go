@@ -44,6 +44,9 @@ type Model struct {
 }
 
 func NewModel(id model.ID, fields fieldsModel, meta model.Meta) Model {
+	if len(meta) == 0 {
+		meta = model.NewMeta("")
+	}
 	vp := viewport.New(0, 0)
 	vp.MouseWheelEnabled = true
 	m := Model{
@@ -65,7 +68,6 @@ func (m Model) Init() tea.Cmd {
 	return nil
 }
 
-//nolint:gocyclo // ignore
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var c tea.Cmd
 	m.viewport, c = m.viewport.Update(msg)
@@ -93,6 +95,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch tModel := m.model.(type) {
 		case textModel:
 			c = cmd.SaveText(m.id, model.ID(m.newID.Value()), m.meta(), tModel.text.Value())
+		case loginPassModel:
+			c = cmd.SaveLoginPass(m.id, model.ID(m.newID.Value()), m.meta(), tModel.login.Value(), tModel.pass.Value())
+		case cardModel:
+			c = cmd.SaveCard(m.id, model.ID(m.newID.Value()), m.meta(), tModel.ccn.Value(), tModel.expire.Value(), tModel.cvv.Value())
 		}
 		return m, c
 	case cmd.EventDeleteMsg:
@@ -181,16 +187,16 @@ func (m Model) view() string {
 	}
 	newIDInput := m.newID.View()
 	if m.newID.Focused() {
-		if m.newID.Value() == "" {
-			newIDInput = focusedInvalidStyle.Render(newIDInput)
-		} else {
+		if m.newID.Err == nil {
 			newIDInput = focusedStyle.Render(newIDInput)
+		} else {
+			newIDInput = focusedInvalidStyle.Render(newIDInput)
 		}
 	} else {
-		if m.newID.Value() == "" {
-			newIDInput = unfocusedInvalidStyle.Render(newIDInput)
-		} else {
+		if m.newID.Err == nil {
 			newIDInput = unfocusedStyle.Render(newIDInput)
+		} else {
+			newIDInput = unfocusedInvalidStyle.Render(newIDInput)
 		}
 	}
 	rows = append(rows, lipgloss.JoinHorizontal(lipgloss.Center,
@@ -225,7 +231,7 @@ func (m Model) view() string {
 }
 
 func (m Model) validate() bool {
-	return m.newID.Value() != "" && m.model.isValid()
+	return requiredValidator(m.newID.Value()) == nil && m.model.isValid()
 }
 
 func (m Model) IsNew() bool {

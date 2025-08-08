@@ -13,7 +13,7 @@ type DataLoginPass struct {
 
 // DataCard данные карты
 type DataCard struct {
-	Number string
-	Expire string
 	CCN    string
+	Expire string
+	CVV    string
 }

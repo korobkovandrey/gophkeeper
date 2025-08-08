@@ -16,7 +16,6 @@ const (
 	btnDelete
 )
 
-//nolint:gocyclo // ignore
 func updateBtns(m *Model) {
 	var currentBtn btn
 	if len(m.btns) > m.cursor {
@@ -49,7 +48,7 @@ func updateBtns(m *Model) {
 			}
 		}
 		if isScreenTable {
-			m.btns = append(m.btns, btnFormAddText)
+			m.btns = append(m.btns, btnFormAddText, btnFormAddLoginPass, btnFormAddCard)
 		} else {
 			m.btns = append(m.btns, btnTable)
 		}

@@ -116,6 +116,15 @@ issues:
         - gocritic
         - staticcheck
         - goconst
+    - path: internal/client/tui
+      linters:
+        - funlen
+        - gocyclo
+    - path: cmd/gencerts/main.go
+      linters:
+        - funlen
+        - gocyclo
+        - mnd
     - path: pkg/golinters/errcheck.go
       text: "SA1019: errCfg.Exclude is deprecated: use ExcludeFunctions instead"
     - path: pkg/commands/run.go
