@@ -40,7 +40,7 @@ func (m Meta) ToString() string {
 func (m Meta) MarshalWithType(typ Type) ([]byte, error) {
 	var buf bytes.Buffer
 	if err := buf.WriteByte(byte(typ)); err != nil {
-		return nil, fmt.Errorf("failed to write Type byte %v: %w", typ, err)
+		return nil, fmt.Errorf("failed to write Get byte %v: %w", typ, err)
 	}
 	if err := json.NewEncoder(&buf).Encode(m); err != nil {
 		return nil, fmt.Errorf("failed to marshal meta: %w", err)

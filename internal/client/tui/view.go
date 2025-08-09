@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -27,11 +28,11 @@ func (m Model) View() string {
 	btnsStr := lipgloss.JoinHorizontal(lipgloss.Center, btns...)
 
 	var statusText string
-	/*if m.key.IsOnline() {
+	if m.app.IsOnline() {
 		statusText = onlineStyle.Render("ONLINE")
 	} else {
 		statusText = offlineStyle.Render("OFFLINE")
-	}*/
+	}
 
 	header := lipgloss.JoinHorizontal(lipgloss.Center,
 		headerStyle.Render("GophKeeper"), " ",
@@ -47,8 +48,8 @@ func (m Model) View() string {
 		help = "esc: change focus"
 	}
 	help += " • tab: focus next • enter: select • ctrl+c, f10: exit"
-	if m.debug != "" {
-		help += " debug: " + m.debug
+	if m.debug != nil {
+		help += " | debug: " + fmt.Sprint(m.debug)
 	}
 
 	if m.msg != "" {

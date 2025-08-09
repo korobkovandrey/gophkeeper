@@ -18,7 +18,7 @@ type tableModel struct {
 func newTableModel() tableModel {
 	columns := []table.Column{
 		{Title: "Статус", Width: 10},
-		{Title: "Тип", Width: 10},
+		{Title: "Тип", Width: 15},
 		{Title: "ID", Width: 30},
 		{Title: "Meta", Width: 40},
 		{Title: "Created", Width: 20},
@@ -100,7 +100,7 @@ func secretsToTableRows(id model.ID, secrets []*model.Secret) ([]table.Row, []mo
 		r[i] = table.Row{
 			"",
 			"",
-			string(secrets[i].ID),
+			string(secrets[i].NewID),
 			secrets[i].DecryptMeta.ToString(),
 			secrets[i].CreatedAt.Format(time.DateTime),
 			secrets[i].UpdatedAt.Format(time.DateTime),

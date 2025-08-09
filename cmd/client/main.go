@@ -2,11 +2,10 @@ package main
 
 import (
 	"context"
+	"gophkeeper/internal/client/app"
 	"gophkeeper/internal/client/config"
-	"gophkeeper/internal/client/grpcclient"
 	"gophkeeper/internal/client/service"
 	"gophkeeper/internal/client/tui"
-	"gophkeeper/internal/client/tuiadapter"
 	"gophkeeper/pkg/logging"
 	"log"
 
@@ -66,12 +65,14 @@ func main() {
 	}
 
 	t := service.NewTime()
-	keyAdapt := tuiadapter.NewKey(cfg, key)
-	authClient := grpcclient.NewAuthClient(conn, key, t)
+	keyManager := app.NewKeyManager(cfg, key)
 	store := service.NewMemStore()
+	defer store.Close()
+	a := app.NewApp(l, conn, t, key, store)
+	go a.RunSync(ctx)
 	storage := service.NewStorage(key, store)
 
-	p := tea.NewProgram(tui.NewModel(ctx, keyAdapt, authClient, storage), tea.WithContext(ctx), tea.WithAltScreen())
+	p := tea.NewProgram(tui.NewModel(ctx, keyManager, a, storage), tea.WithContext(ctx), tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
 		l.FatalCtx(ctx, "error starting program", zap.Error(err))
 	}

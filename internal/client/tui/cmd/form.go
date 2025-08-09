@@ -34,36 +34,39 @@ func ShowFormID(id model.ID) tea.Cmd {
 }
 
 type ShowFormTextMsg struct {
-	ID   model.ID
-	Meta model.Meta
-	Text string
+	ID    model.ID
+	NewID model.ID
+	Meta  model.Meta
+	Text  string
 }
 
-func ShowFormText(id model.ID, meta model.Meta, text string) tea.Cmd {
-	return NewCmd(ShowFormTextMsg{ID: id, Meta: meta, Text: text})
+func ShowFormText(id, newID model.ID, meta model.Meta, text string) tea.Cmd {
+	return NewCmd(ShowFormTextMsg{ID: id, NewID: newID, Meta: meta, Text: text})
 }
 
 type ShowFormLoginPassMsg struct {
 	ID    model.ID
+	NewID model.ID
 	Meta  model.Meta
 	Login string
 	Pass  string
 }
 
-func ShowFormLoginPass(id model.ID, meta model.Meta, login, pass string) tea.Cmd {
-	return NewCmd(ShowFormLoginPassMsg{ID: id, Meta: meta, Login: login, Pass: pass})
+func ShowFormLoginPass(id, newID model.ID, meta model.Meta, login, pass string) tea.Cmd {
+	return NewCmd(ShowFormLoginPassMsg{ID: id, NewID: newID, Meta: meta, Login: login, Pass: pass})
 }
 
 type ShowFormCardMsg struct {
 	ID     model.ID
+	NewID  model.ID
 	Meta   model.Meta
 	CCN    string
 	Expire string
 	CVV    string
 }
 
-func ShowFormCard(id model.ID, meta model.Meta, ccn, expire, cvv string) tea.Cmd {
-	return NewCmd(ShowFormCardMsg{ID: id, Meta: meta, CCN: ccn, Expire: expire, CVV: cvv})
+func ShowFormCard(id, newID model.ID, meta model.Meta, ccn, expire, cvv string) tea.Cmd {
+	return NewCmd(ShowFormCardMsg{ID: id, NewID: newID, Meta: meta, CCN: ccn, Expire: expire, CVV: cvv})
 }
 
 type SaveTextMsg struct {

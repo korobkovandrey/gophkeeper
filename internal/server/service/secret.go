@@ -69,7 +69,7 @@ func (s *SecretService) Store(ctx context.Context, userID int64,
 			Crypt:     crypt,
 			Meta:      meta,
 			Data:      data,
-			CreatedAt: storeTime,
+			CreatedAt: storeTime.UTC(),
 		})
 		if err == nil {
 			return newSecretFromQuerySecret(qSecret), nil
@@ -78,20 +78,38 @@ func (s *SecretService) Store(ctx context.Context, userID int64,
 			return nil, fmt.Errorf("failed to create: %w", err)
 		}
 	}
+	if id != newID {
+		_, err := s.r.FindSecret(ctx, query.FindSecretParams{
+			ID:     newID,
+			UserID: userID,
+		})
+		if err == nil {
+			_, err = s.r.DeleteSecret(ctx, query.DeleteSecretParams{
+				UserID:    userID,
+				ID:        newID,
+				UpdatedAt: storeTime.UTC(),
+			})
+			if err != nil {
+				return nil, fmt.Errorf("failed to delete: %w", err)
+			}
+		} else if !errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("failed to find: %w", err)
+		}
+	}
 	qSecret, err := s.r.UpdateSecret(ctx, query.UpdateSecretParams{
-		ID:        id,
-		ID_2:      newID,
+		ID:        newID,
+		ID_2:      id,
 		UserID:    userID,
 		Crypt:     crypt,
 		Meta:      meta,
 		Data:      data,
-		UpdatedAt: storeTime,
+		UpdatedAt: storeTime.UTC(),
 	})
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			err = ErrConflict
 		}
-		return nil, fmt.Errorf("failed to update: %w", err)
+		return nil, fmt.Errorf("failed to update: %w, %v, %v, %v", err, id, newID, storeTime.UTC())
 	}
 	return newSecretFromQuerySecret(qSecret), nil
 }
@@ -100,7 +118,7 @@ func (s *SecretService) Delete(ctx context.Context, userID int64, id string, upd
 	qSecret, err := s.r.DeleteSecret(ctx, query.DeleteSecretParams{
 		UserID:    userID,
 		ID:        id,
-		UpdatedAt: updatedAt,
+		UpdatedAt: updatedAt.UTC(),
 	})
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

@@ -31,6 +31,7 @@ const (
 
 type Secret struct {
 	ID          ID
+	NewID       ID
 	Crypt       []byte
 	Meta        []byte
 	Data        []byte
@@ -44,11 +45,13 @@ type Secret struct {
 func (s *Secret) Clone() *Secret {
 	secret := &Secret{
 		ID:          s.ID,
+		NewID:       s.NewID,
 		Crypt:       make([]byte, len(s.Crypt)),
 		Meta:        make([]byte, len(s.Meta)),
 		Data:        make([]byte, len(s.Data)),
 		CreatedAt:   s.CreatedAt,
 		UpdatedAt:   s.UpdatedAt,
+		Status:      s.Status,
 		Type:        s.Type,
 		DecryptMeta: make(Meta, len(s.DecryptMeta)),
 	}
@@ -59,9 +62,10 @@ func (s *Secret) Clone() *Secret {
 	return secret
 }
 
-func NewSecret(id ID, typ Type, meta Meta, data []byte, publicKey *rsa.PublicKey) (*Secret, error) {
+func NewSecret(id, newID ID, typ Type, meta Meta, data []byte, publicKey *rsa.PublicKey) (*Secret, error) {
 	s := &Secret{
 		ID:          id,
+		NewID:       newID,
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
 		Status:      StatusNew,

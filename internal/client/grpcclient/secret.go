@@ -69,7 +69,7 @@ func (s *SecretClient) makeSignAuth(id string, data ...[]byte) (auth *proto.Auth
 	auth = &proto.Auth{
 		Id:        id,
 		UserId:    s.key.UserID,
-		Timestamp: s.time.Current().Unix(),
+		Timestamp: s.time.ServerNow().Unix(),
 	}
 	auth.Signature, err = crypt.SignPSSWithTimestampAndUserID(s.key.PrivateKey, auth.UserId, auth.Timestamp,
 		append(data, []byte(auth.Id), s.key.PublicKeyBytes)...,

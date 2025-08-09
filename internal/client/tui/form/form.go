@@ -43,7 +43,7 @@ type Model struct {
 	IsValid  bool
 }
 
-func NewModel(id model.ID, fields fieldsModel, meta model.Meta) Model {
+func NewModel(id, newID model.ID, fields fieldsModel, meta model.Meta) Model {
 	if len(meta) == 0 {
 		meta = model.NewMeta("")
 	}
@@ -59,7 +59,7 @@ func NewModel(id model.ID, fields fieldsModel, meta model.Meta) Model {
 	m.newID.Placeholder = "ID"
 	m.newID.Prompt = prompt
 	m.newID.Width = 20
-	m.newID.SetValue(string(id))
+	m.newID.SetValue(string(newID))
 	addMetas(&m, meta)
 	return m
 }

@@ -53,7 +53,7 @@ func updateBtns(m *Model) {
 			m.btns = append(m.btns, btnTable)
 		}
 	}
-	if !m.key.IsLogged() {
+	if !m.app.IsLogged() {
 		if isWorkAvailable {
 			m.btns = append(m.btns, btnLogin, btnRegister)
 		}

@@ -1,4 +1,4 @@
-package tuiadapter
+package app
 
 import (
 	"fmt"
@@ -6,23 +6,23 @@ import (
 	"gophkeeper/internal/client/service"
 )
 
-type Key struct {
+type KeyManager struct {
 	cfg *config.Config
 	key *service.Key
 }
 
-func NewKey(cfg *config.Config, key *service.Key) *Key {
-	return &Key{
+func NewKeyManager(cfg *config.Config, key *service.Key) *KeyManager {
+	return &KeyManager{
 		cfg: cfg,
 		key: key,
 	}
 }
 
-func (s *Key) GetPrivateKeyPath() string {
+func (s *KeyManager) GetPrivateKeyPath() string {
 	return s.cfg.PrivateKeyPath
 }
 
-func (s *Key) SetPrivateKeyPath(privateKeyPath string) error {
+func (s *KeyManager) SetPrivateKeyPath(privateKeyPath string) error {
 	err := s.key.SetPrivateKeyFromPath(privateKeyPath)
 	if err != nil {
 		return fmt.Errorf("failed to set private key: %w", err)
@@ -32,10 +32,6 @@ func (s *Key) SetPrivateKeyPath(privateKeyPath string) error {
 	return nil
 }
 
-func (s *Key) IsLogged() bool {
-	return s.key.UserID > 0
-}
-
-func (s *Key) Fingerprint() string {
+func (s *KeyManager) Fingerprint() string {
 	return s.key.Fingerprint
 }

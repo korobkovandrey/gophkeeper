@@ -23,7 +23,7 @@ type Config struct {
 const (
 	defaultAddr      = "localhost:3200"
 	defaultLogLevel  = zap.InfoLevel
-	defaultLogOutput = "stderr"
+	defaultLogOutput = "client.log"
 )
 
 func NewConfig() (*Config, error) {

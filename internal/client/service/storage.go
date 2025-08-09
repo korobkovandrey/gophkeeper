@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gophkeeper/internal/client/model"
 	"gophkeeper/pkg/crypt"
+	"time"
 )
 
 type Storage struct {
@@ -39,11 +40,14 @@ func (s *Storage) save(id, newID model.ID, meta model.Meta, dataModel any) error
 	default:
 		return fmt.Errorf("unknown data type: %T", dataModel)
 	}
-	secret, err := model.NewSecret(newID, typ, meta, data, &s.key.PrivateKey.PublicKey)
+	if id == "" {
+		id = newID
+	}
+	secret, err := model.NewSecret(id, newID, typ, meta, data, &s.key.PrivateKey.PublicKey)
 	if err != nil {
 		return fmt.Errorf("failed to create secret: %w", err)
 	}
-	err = s.m.Store(id, secret)
+	err = s.m.Store(secret)
 	if err != nil {
 		return fmt.Errorf("failed to store secret: %w", err)
 	}
@@ -62,24 +66,20 @@ func (s *Storage) SaveCard(id, newID model.ID, meta model.Meta, ccn, expire, cvv
 	return s.save(id, newID, meta, model.DataCard{CCN: ccn, Expire: expire, CVV: cvv})
 }
 
-func (s *Storage) DataText(id model.ID) (model.DataText, model.Meta, error) {
-	return decryptSecret[model.DataText](s, id)
+func (s *Storage) DataText(secret model.Secret) (model.DataText, model.Meta, error) {
+	return decryptSecret[model.DataText](s, secret)
 }
 
-func (s *Storage) DataLoginPass(id model.ID) (model.DataLoginPass, model.Meta, error) {
-	return decryptSecret[model.DataLoginPass](s, id)
+func (s *Storage) DataLoginPass(secret model.Secret) (model.DataLoginPass, model.Meta, error) {
+	return decryptSecret[model.DataLoginPass](s, secret)
 }
 
-func (s *Storage) DataCard(id model.ID) (model.DataCard, model.Meta, error) {
-	return decryptSecret[model.DataCard](s, id)
+func (s *Storage) DataCard(secret model.Secret) (model.DataCard, model.Meta, error) {
+	return decryptSecret[model.DataCard](s, secret)
 }
 
-func decryptSecret[T any](s *Storage, id model.ID) (T, model.Meta, error) {
-	secret := s.m.Get(id)
+func decryptSecret[T any](s *Storage, secret model.Secret) (T, model.Meta, error) {
 	var data T
-	if secret == nil {
-		return data, model.Meta{}, fmt.Errorf("secret not found %v", id)
-	}
 	decryptData, err := crypt.Decrypt(s.key.PrivateKey, secret.Crypt, secret.Data)
 	if err != nil {
 		return data, model.Meta{}, fmt.Errorf("failed to decrypt data: %w", err)
@@ -91,12 +91,12 @@ func decryptSecret[T any](s *Storage, id model.ID) (T, model.Meta, error) {
 	return data, secret.DecryptMeta, nil
 }
 
-func (s *Storage) Type(id model.ID) (model.Type, error) {
+func (s *Storage) Get(id model.ID) (*model.Secret, error) {
 	secret := s.m.Get(id)
 	if secret == nil {
-		return model.TypeUnknown, fmt.Errorf("secret not found %v", id)
+		return nil, fmt.Errorf("secret not found %v", id)
 	}
-	return secret.Type, nil
+	return secret, nil
 }
 
 func (s *Storage) Delete(id model.ID) {
@@ -105,4 +105,13 @@ func (s *Storage) Delete(id model.ID) {
 
 func (s *Storage) Clear() {
 	s.m.Clear()
+}
+
+func (s *Storage) Change() chan bool {
+	ch := make(chan bool)
+	go func() {
+		time.Sleep(10 * time.Second)
+		ch <- true
+	}()
+	return ch
 }

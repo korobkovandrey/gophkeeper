@@ -2,6 +2,7 @@ package tui
 
 import (
 	"context"
+	"gophkeeper/internal/client/app"
 	"gophkeeper/internal/client/model"
 	"gophkeeper/internal/client/service"
 	"gophkeeper/internal/client/tui/cmd"
@@ -10,23 +11,10 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type keyService interface {
-	GetPrivateKeyPath() string
-	Fingerprint() string
-	SetPrivateKeyPath(privateKeyPath string) error
-	IsLogged() bool
-}
-
-type authClient interface {
-	Login(ctx context.Context) error
-	Register(ctx context.Context) error
-	//IsOnline() bool
-}
-
 type Model struct {
 	ctx     context.Context
-	key     keyService
-	auth    authClient
+	key     *app.KeyManager
+	app     *app.App
 	storage *service.Storage
 
 	msg    string
@@ -37,15 +25,16 @@ type Model struct {
 	cursor      int
 	btns        []btn
 	btnNames    map[btn]string
-	debug       string
+	debug       any
 	initialized bool
+	online      bool
 }
 
-func NewModel(ctx context.Context, key keyService, auth authClient, storage *service.Storage) Model {
+func NewModel(ctx context.Context, key *app.KeyManager, app *app.App, storage *service.Storage) Model {
 	m := Model{
 		ctx:     ctx,
 		key:     key,
-		auth:    auth,
+		app:     app,
 		storage: storage,
 		btnNames: map[btn]string{
 			btnTable:            "Таблица",
@@ -71,7 +60,7 @@ func (m Model) Init() tea.Cmd {
 	} else {
 		c = cmd.ShowTable()
 	}
-	return tea.Batch(tea.SetWindowTitle("Gophkeeper"), c)
+	return tea.Batch(tea.SetWindowTitle("Gophkeeper"), c, m.listenOnline(), m.listenUpdate())
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -121,40 +110,40 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.screen = m.table
 		return m, tea.Sequence(cmd.ScreenFocus(), tea.WindowSize(), cmd.UpdateBtns())
 	case cmd.ShowFormIDMsg:
-		t, err := m.storage.Type(tMsg.ID)
+		secret, err := m.storage.Get(tMsg.ID)
 		if err != nil {
 			return m, cmd.Msg(err.Error())
 		}
-		switch t {
+		switch secret.Type {
 		case model.TypeText:
-			data, meta, err := m.storage.DataText(tMsg.ID)
+			data, meta, err := m.storage.DataText(*secret)
 			if err != nil {
 				return m, cmd.Msg(err.Error())
 			}
-			return m, cmd.ShowFormText(tMsg.ID, meta, data.Text)
+			return m, cmd.ShowFormText(secret.ID, secret.NewID, meta, data.Text)
 		case model.TypeLoginPass:
-			data, meta, err := m.storage.DataLoginPass(tMsg.ID)
+			data, meta, err := m.storage.DataLoginPass(*secret)
 			if err != nil {
 				return m, cmd.Msg(err.Error())
 			}
-			return m, cmd.ShowFormLoginPass(tMsg.ID, meta, data.Login, data.Pass)
+			return m, cmd.ShowFormLoginPass(secret.ID, secret.NewID, meta, data.Login, data.Pass)
 		case model.TypeCard:
-			data, meta, err := m.storage.DataCard(tMsg.ID)
+			data, meta, err := m.storage.DataCard(*secret)
 			if err != nil {
 				return m, cmd.Msg(err.Error())
 			}
-			return m, cmd.ShowFormCard(tMsg.ID, meta, data.CCN, data.Expire, data.CVV)
+			return m, cmd.ShowFormCard(secret.ID, secret.NewID, meta, data.CCN, data.Expire, data.CVV)
 		default:
 		}
 		return m, nil
 	case cmd.ShowFormTextMsg:
-		m.screen = form.MakeFormTextModel(tMsg.ID, tMsg.Meta, tMsg.Text)
+		m.screen = form.MakeFormTextModel(tMsg.ID, tMsg.NewID, tMsg.Meta, tMsg.Text)
 		return m, tea.Sequence(cmd.ScreenFocus(), m.screen.Init(), tea.WindowSize(), cmd.UpdateBtns())
 	case cmd.ShowFormLoginPassMsg:
-		m.screen = form.MakeFormLoginPassModel(tMsg.ID, tMsg.Meta, tMsg.Login, tMsg.Pass)
+		m.screen = form.MakeFormLoginPassModel(tMsg.ID, tMsg.NewID, tMsg.Meta, tMsg.Login, tMsg.Pass)
 		return m, tea.Sequence(cmd.ScreenFocus(), m.screen.Init(), tea.WindowSize(), cmd.UpdateBtns())
 	case cmd.ShowFormCardMsg:
-		m.screen = form.MakeFormCardModel(tMsg.ID, tMsg.Meta, tMsg.CCN, tMsg.Expire, tMsg.CVV)
+		m.screen = form.MakeFormCardModel(tMsg.ID, tMsg.NewID, tMsg.Meta, tMsg.CCN, tMsg.Expire, tMsg.CVV)
 		return m, tea.Sequence(cmd.ScreenFocus(), m.screen.Init(), tea.WindowSize(), cmd.UpdateBtns())
 	case cmd.UpdateTableMsg:
 		if _, ok := m.screen.(tableModel); !ok {
@@ -165,20 +154,25 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if err := m.storage.SaveText(tMsg.ID, tMsg.NewID, tMsg.Meta, tMsg.Text); err != nil {
 			return m, cmd.Msg(err.Error())
 		}
-		return m, tea.Sequence(cmd.ShowTable(), cmd.UpdateTable(tMsg.NewID, m.storage.List()))
+		return m, tea.Sequence(cmd.ShowTable(), cmd.UpdateTable(tMsg.ID, m.storage.List()))
 	case cmd.SaveLoginPassMsg:
 		if err := m.storage.SaveLoginPass(tMsg.ID, tMsg.NewID, tMsg.Meta, tMsg.Login, tMsg.Pass); err != nil {
 			return m, cmd.Msg(err.Error())
 		}
-		return m, tea.Sequence(cmd.ShowTable(), cmd.UpdateTable(tMsg.NewID, m.storage.List()))
+		return m, tea.Sequence(cmd.ShowTable(), cmd.UpdateTable(tMsg.ID, m.storage.List()))
 	case cmd.SaveCardMsg:
 		if err := m.storage.SaveCard(tMsg.ID, tMsg.NewID, tMsg.Meta, tMsg.CCN, tMsg.Expire, tMsg.CVV); err != nil {
 			return m, cmd.Msg(err.Error())
 		}
-		return m, tea.Sequence(cmd.ShowTable(), cmd.UpdateTable(tMsg.NewID, m.storage.List()))
+		return m, tea.Sequence(cmd.ShowTable(), cmd.UpdateTable(tMsg.ID, m.storage.List()))
 	case cmd.DeleteIDMsg:
 		m.storage.Delete(tMsg.ID)
 		return m, tea.Sequence(cmd.ShowTable(), cmd.UpdateTable("", m.storage.List()))
+	case OnlineMsg:
+		m.online = m.app.IsOnline()
+		return m, m.listenOnline()
+	case UpdateMsg:
+		return m, tea.Batch(cmd.UpdateTable("", m.storage.List()), m.listenUpdate())
 	}
 
 	if m.focused {
@@ -220,23 +214,23 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				case btnFile:
 					c = cmd.ShowFilepicker()
 				case btnLogin:
-					if err := m.auth.Login(m.ctx); err != nil {
+					if err := m.app.Login(m.ctx); err != nil {
 						c = cmd.Msg(err.Error())
 					} else {
 						c = cmd.ShowTable()
 					}
 				case btnRegister:
-					if err := m.auth.Register(m.ctx); err != nil {
+					if err := m.app.Register(m.ctx); err != nil {
 						c = cmd.Msg(err.Error())
 					} else {
 						c = cmd.ShowTable()
 					}
 				case btnFormAddText:
-					return m, cmd.ShowFormText("", model.NewMeta(""), "")
+					return m, cmd.ShowFormText("", "", model.NewMeta(""), "")
 				case btnFormAddLoginPass:
-					return m, cmd.ShowFormLoginPass("", model.NewMeta(""), "", "")
+					return m, cmd.ShowFormLoginPass("", "", model.NewMeta(""), "", "")
 				case btnFormAddCard:
-					return m, cmd.ShowFormCard("", model.NewMeta(""), "", "", "")
+					return m, cmd.ShowFormCard("", "", model.NewMeta(""), "", "", "")
 				case btnSave:
 					return m, cmd.EventSave()
 				case btnDelete:
@@ -262,4 +256,25 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.table = t
 	}
 	return m, c
+}
+
+type OnlineMsg struct{}
+type UpdateMsg struct{}
+
+func listenEvent[T any](ch <-chan struct{}) tea.Cmd {
+	return func() tea.Msg {
+		if _, ok := <-ch; ok {
+			var t T
+			return t
+		}
+		return nil
+	}
+}
+
+func (m Model) listenOnline() tea.Cmd {
+	return listenEvent[OnlineMsg](m.app.OnlineCh)
+}
+
+func (m Model) listenUpdate() tea.Cmd {
+	return listenEvent[UpdateMsg](m.app.UpdateCh)
 }
