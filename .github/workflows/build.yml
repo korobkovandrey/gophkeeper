@@ -62,7 +62,7 @@ jobs:
           cp -r internal/server/infra/db/init/* docker/db/init/
           cp docker-compose.yaml docker/docker-compose.yaml
           sed -i 's|\./internal/server/infra/db/init|\./docker/db/init|' docker/docker-compose.yaml
-          echo "DB_PORT_EXTERNAL=5432\n" > docker/.env
+          echo "DB_PORT_EXTERNAL=5432" > ./docker/.env
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -75,6 +75,7 @@ jobs:
             config_server.json
             certs/*
             docker/*
+            docker/.env
             screen*.png
             README.md
           retention-days: 3
