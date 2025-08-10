@@ -51,11 +51,17 @@ jobs:
             -ldflags "-X main.buildVersion=${{ env.BUILD_VERSION }} -X main.buildDate=${{ env.BUILD_DATE }} -X main.buildCommit=${{ env.BUILD_COMMIT }}" \
             -o server-${{ matrix.goos }}-${{ matrix.goarch }}$EXT ./cmd/server
 
-      - name: Upload artifact
+      - name: Upload artifact client
         uses: actions/upload-artifact@v4
         with:
-          name: myapp-${{ matrix.goos }}-${{ matrix.goarch }}
-          path: myapp-${{ matrix.goos }}-${{ matrix.goarch }}*
+          name: client-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: client-${{ matrix.goos }}-${{ matrix.goarch }}*
+          retention-days: 60
+      - name: Upload artifact server
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: server-${{ matrix.goos }}-${{ matrix.goarch }}*
           retention-days: 60
 
   release:
