@@ -58,8 +58,9 @@ jobs:
           path: |
             client-${{ matrix.goos }}-${{ matrix.goarch }}*
             server-${{ matrix.goos }}-${{ matrix.goarch }}*
+            certs
             README.md
-          retention-days: 10
+          retention-days: 3
 
   release:
     needs: build

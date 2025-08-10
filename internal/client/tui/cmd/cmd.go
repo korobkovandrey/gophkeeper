@@ -21,9 +21,7 @@ func Msg(msg string) tea.Cmd {
 type UpdateBtnsMsg struct{}
 type SelectPrivatePathMsg string
 type ShowFilepickerMsg struct{}
-type ChangeSecretsMsg struct {
-	ID string
-}
+
 type UpdateTableMsg struct {
 	ID      model.ID
 	Secrets []*model.Secret
@@ -34,10 +32,6 @@ type ScreenBlurMsg struct{}
 
 func NewUpdateTableMsg(id model.ID, secrets []*model.Secret) tea.Msg {
 	return UpdateTableMsg{ID: id, Secrets: secrets}
-}
-
-func NewChangeSecretsMsg(id string) tea.Msg {
-	return ChangeSecretsMsg{ID: id}
 }
 
 func ScreenFocus() tea.Cmd {
@@ -66,8 +60,4 @@ func ShowTable() tea.Cmd {
 
 func UpdateTable(id model.ID, secrets []*model.Secret) tea.Cmd {
 	return NewCmd(NewUpdateTableMsg(id, secrets))
-}
-
-func ChangeSecrets(id string) tea.Cmd {
-	return NewCmd(NewChangeSecretsMsg(id))
 }
