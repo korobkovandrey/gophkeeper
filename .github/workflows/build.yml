@@ -46,10 +46,10 @@ jobs:
           fi
           GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build \
             -ldflags "-X main.buildVersion=${{ env.BUILD_VERSION }} -X main.buildDate=${{ env.BUILD_DATE }} -X main.buildCommit=${{ env.BUILD_COMMIT }}" \
-            -o client-${{ matrix.goos }}-${{ matrix.goarch }}$EXT cmd/client
+            -o client-${{ matrix.goos }}-${{ matrix.goarch }}$EXT ./cmd/client
           GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build \
             -ldflags "-X main.buildVersion=${{ env.BUILD_VERSION }} -X main.buildDate=${{ env.BUILD_DATE }} -X main.buildCommit=${{ env.BUILD_COMMIT }}" \
-            -o server-${{ matrix.goos }}-${{ matrix.goarch }}$EXT cmd/server
+            -o server-${{ matrix.goos }}-${{ matrix.goarch }}$EXT ./cmd/server
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
