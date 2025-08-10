@@ -4,12 +4,14 @@ on:
   push:
     branches:
       - master
-      - dev
   pull_request:
     branches:
       - master
   release:
     types: [published]
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -62,7 +64,7 @@ jobs:
           cp -r internal/server/infra/db/init/* docker/db/init/
           cp docker-compose.yaml docker/docker-compose.yaml
           sed -i 's|\./internal/server/infra/db/init|\./docker/db/init|' docker/docker-compose.yaml
-          echo "DB_PORT_EXTERNAL=5432" > ./docker/.env
+          echo "DB_PORT_EXTERNAL=5432" > docker/.env
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -79,21 +81,24 @@ jobs:
             screen*.png
             README.md
           retention-days: 3
+          include-hidden-files: true
 
   release:
     needs: build
     if: github.event_name == 'release' && github.event.action == 'published'
     runs-on: ubuntu-latest
     steps:
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
+      - name: Download artifacts as zip
+        uses: dawidd6/action-download-artifact@v11
         with:
-          path: artifacts
-
-      - name: Upload to release
-        run: |
-          for artifact in artifacts/myapp-*/*; do
-            gh release upload ${{ github.event.release.tag_name }} "$artifact" --repo ${{ github.repository }}
-          done
+          workflow: ${{ github.event.workflow.name }}
+          run_id: ${{ github.run_id }}
+          path: downloads
+          skip_unpack: true
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event.release.tag_name }}
+          files: downloads/*.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
