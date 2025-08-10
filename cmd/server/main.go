@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"gophkeeper/internal/server/auth"
 	"gophkeeper/internal/server/config"
 	"gophkeeper/internal/server/infra/db"
@@ -24,7 +25,14 @@ import (
 	"google.golang.org/grpc/credentials"
 )
 
+var (
+	buildVersion = "N/A"
+	buildDate    = "N/A"
+	buildCommit  = "N/A"
+)
+
 func main() {
+	fmt.Printf("Build version=%v, date=%v, commit=%v\n", buildVersion, buildDate, buildCommit)
 	_ = godotenv.Load()
 	cfg, err := config.NewConfig()
 	if err != nil {
