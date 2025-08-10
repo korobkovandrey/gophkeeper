@@ -1,0 +1,10 @@
+{
+  "addr": "localhost:3200",
+  "cert_path": "./certs/server.crt",
+  "dsn": "postgres://gophkeeper:wI94ZvRX0Ajt@localhost:5432/gophkeeper?sslmode=disable",
+  "key_path": "./certs/server.key",
+  "log_level": 0,
+  "log_outputs": [
+    "stderr"
+  ]
+}

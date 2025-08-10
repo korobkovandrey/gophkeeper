@@ -20,6 +20,6 @@ vendor/
 .vscode
 
 .env
-client_config.json
-server_config.json
+config_client.json
+config_server.json
 client.log

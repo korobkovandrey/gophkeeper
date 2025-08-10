@@ -173,9 +173,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.cursor = newCursor
 	}
 	m.viewport.SetContent(m.view())
-	if newCursor < 0 {
-		//m.cursor
-	}
 	return m, c
 }
 

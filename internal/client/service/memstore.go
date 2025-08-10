@@ -49,15 +49,13 @@ func (ms *MemStore) SyncStore(secret *model.Secret) error {
 	existing, existsOld := ms.store[secret.ID]
 	if existsOld {
 		if secret.UpdatedAt.Unix() < existing.UpdatedAt.Unix() {
-			return fmt.Errorf("conflict1: eventTime %v < updatedAt %v", secret.UpdatedAt, existing.UpdatedAt)
-			//return errors.New("conflict")
+			return fmt.Errorf("conflict: %v < %v", secret.UpdatedAt, existing.UpdatedAt)
 		}
 	}
 	if secret.ID != secret.NewID {
 		if existingNew, ok := ms.store[secret.NewID]; ok {
 			if secret.UpdatedAt.Unix() < existingNew.UpdatedAt.Unix() {
-				return fmt.Errorf("conflict1: eventTime %v < updatedAt %v", secret.UpdatedAt, existingNew.UpdatedAt)
-				//return errors.New("conflict")
+				return fmt.Errorf("conflict: %v < %v", secret.UpdatedAt, existingNew.UpdatedAt)
 			}
 		}
 		if existsOld {
@@ -101,7 +99,7 @@ func (ms *MemStore) Delete(id model.ID, eventTime time.Time) error {
 		return nil
 	}
 	if eventTime.Unix() < ms.store[id].UpdatedAt.Unix() {
-		return fmt.Errorf("conflict: eventTime %v < updatedAt %v", eventTime, ms.store[id].UpdatedAt)
+		return fmt.Errorf("conflict: %v < %v", eventTime, ms.store[id].UpdatedAt)
 	}
 	delete(ms.store, id)
 	return nil

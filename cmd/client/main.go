@@ -75,9 +75,11 @@ func main() {
 	p := tea.NewProgram(tui.NewModel(modelCtx, keyManager, a, storage), tea.WithContext(ctx), tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
 		l.ErrorCtx(ctx, "error program", zap.Error(err))
+	} else if cfg.IsWrite() {
+		if err = cfg.WriteConfig(); err != nil {
+			l.ErrorCtx(ctx, "failed to write config", zap.Error(err))
+		} else {
+			l.InfoCtx(ctx, "config written to "+cfg.ConfigPath())
+		}
 	}
-	if err = cfg.WriteConfig(); err != nil {
-		l.ErrorCtx(ctx, "failed to write config", zap.Error(err))
-	}
-
 }

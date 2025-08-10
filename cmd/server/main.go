@@ -88,5 +88,11 @@ func main() {
 	}()
 	if err = s.Serve(serv); err != nil && !errors.Is(err, grpc.ErrServerStopped) {
 		l.ErrorCtx(ctx, "failed to start gRPC server", zap.Error(err))
+	} else if cfg.IsWrite() {
+		if err = cfg.WriteConfig(); err != nil {
+			l.ErrorCtx(ctx, "failed to write config", zap.Error(err))
+		} else {
+			l.InfoCtx(ctx, "config written to "+cfg.ConfigPath())
+		}
 	}
 }

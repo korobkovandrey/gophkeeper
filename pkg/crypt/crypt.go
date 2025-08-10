@@ -24,18 +24,6 @@ func HashData(data ...[]byte) []byte {
 	return hasher.Sum(nil)
 }
 
-func VerifyPSS(rsaPublicKey *rsa.PublicKey, signature []byte, data ...[]byte) bool {
-	return rsa.VerifyPSS(rsaPublicKey, crypto.SHA256, HashData(data...), signature, nil) == nil
-}
-
-func SignPSS(privateKey *rsa.PrivateKey, data ...[]byte) ([]byte, error) {
-	signature, err := rsa.SignPSS(rand.Reader, privateKey, crypto.SHA256, HashData(data...), nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to sign data: %w", err)
-	}
-	return signature, nil
-}
-
 func VerifyPSSWithTimestamp(rsaPublicKey *rsa.PublicKey, signature []byte, timestamp int64, data ...[]byte) bool {
 	timestampBytes := make([]byte, Int64BytesLen)
 	binary.BigEndian.PutUint64(timestampBytes, uint64(timestamp))

@@ -23,8 +23,7 @@ const (
 )
 
 const (
-	TypeUnknown Type = iota
-	TypeText
+	TypeText Type = iota
 	TypeLoginPass
 	TypeCard
 )
@@ -111,7 +110,8 @@ func NewSecret(id, newID ID, typ Type, meta Meta, data []byte, publicKey *rsa.Pu
 	return s, nil
 }
 
-func MakeSecret(id, newID string, cryptBytes, meta, data []byte, createdAt, updatedAt time.Time, privateKey *rsa.PrivateKey) (*Secret, error) {
+func MakeSecret(id, newID string, cryptBytes, meta, data []byte, createdAt, updatedAt time.Time,
+	privateKey *rsa.PrivateKey) (*Secret, error) {
 	s := &Secret{
 		ID:        ID(id),
 		NewID:     ID(newID),

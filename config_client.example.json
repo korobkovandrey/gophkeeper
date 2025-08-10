@@ -1,0 +1,9 @@
+{
+  "addr": "localhost:3200",
+  "ca_path": "./certs/ca.crt",
+  "log_level": 0,
+  "log_outputs": [
+    "client.log"
+  ],
+  "private_key_path": ""
+}

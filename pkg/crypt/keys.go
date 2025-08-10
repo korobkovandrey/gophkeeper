@@ -18,14 +18,6 @@ func PublicKeyHash(publicKeyBytes []byte) []byte {
 	return hash[:]
 }
 
-func HashFromFingerprint(fingerprint string) ([]byte, error) {
-	hash, err := base64.StdEncoding.DecodeString(fingerprint)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode fingerprint: %w", err)
-	}
-	return hash, nil
-}
-
 func FingerprintFromHash(hash []byte) string {
 	return base64.StdEncoding.EncodeToString(hash)
 }
@@ -44,14 +36,6 @@ func RSAPublicKeyFromBytes(publicKeyBytes []byte) (*rsa.PublicKey, error) {
 		return nil, errors.New("invalid public key format")
 	}
 	return rsaPublicKey, nil
-}
-
-func RSAPublicKeyFromStr(publicKeyStr string) (*rsa.PublicKey, error) {
-	publicKeyBytes, err := DecodePublicKey(publicKeyStr)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode public key: %w", err)
-	}
-	return RSAPublicKeyFromBytes(publicKeyBytes)
 }
 
 func EncodePublicKey(publicKeyBytes []byte) string {
