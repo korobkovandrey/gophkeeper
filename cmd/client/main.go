@@ -32,6 +32,13 @@ func main() {
 	ctx := context.Background()
 	l.InfoCtx(ctx, "", zap.Any("config", cfg))
 
+	key := service.NewKey()
+	if cfg.PrivateKeyPath != "" {
+		if err := key.SetPrivateKeyFromPath(cfg.PrivateKeyPath); err != nil {
+			l.FatalCtx(ctx, "failed to set private key", zap.Error(err))
+		}
+	}
+
 	var dialOpts []grpc.DialOption
 	if cfg.CAPath == "" {
 		dialOpts = append(dialOpts, grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -55,15 +62,6 @@ func main() {
 		}
 	}()
 
-	ctx, cancel := context.WithCancel(ctx)
-	key := service.NewKey()
-
-	if cfg.PrivateKeyPath != "" {
-		if err := key.SetPrivateKeyFromPath(cfg.PrivateKeyPath); err != nil {
-			l.FatalCtx(ctx, "failed to set private key", zap.Error(err))
-		}
-	}
-
 	t := service.NewTime()
 	keyManager := app.NewKeyManager(cfg, key)
 	store := service.NewMemStore()
@@ -72,9 +70,14 @@ func main() {
 	go a.RunSync(ctx)
 	storage := service.NewStorage(key, store)
 
-	p := tea.NewProgram(tui.NewModel(ctx, keyManager, a, storage), tea.WithContext(ctx), tea.WithAltScreen())
+	modelCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	p := tea.NewProgram(tui.NewModel(modelCtx, keyManager, a, storage), tea.WithContext(ctx), tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
-		l.FatalCtx(ctx, "error starting program", zap.Error(err))
+		l.ErrorCtx(ctx, "error program", zap.Error(err))
 	}
-	cancel()
+	if err = cfg.WriteConfig(); err != nil {
+		l.ErrorCtx(ctx, "failed to write config", zap.Error(err))
+	}
+
 }

@@ -7,6 +7,7 @@ import (
 	"gophkeeper/internal/client/service"
 	"gophkeeper/internal/client/tui/cmd"
 	"gophkeeper/internal/client/tui/form"
+	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -21,13 +22,12 @@ type Model struct {
 	table  tea.Model
 	screen tea.Model
 
-	focused     bool
-	cursor      int
-	btns        []btn
-	btnNames    map[btn]string
-	debug       any
-	initialized bool
-	online      bool
+	focused  bool
+	cursor   int
+	btns     []btn
+	btnNames map[btn]string
+	debug    any
+	online   bool
 }
 
 func NewModel(ctx context.Context, key *app.KeyManager, app *app.App, storage *service.Storage) Model {
@@ -54,6 +54,8 @@ func NewModel(ctx context.Context, key *app.KeyManager, app *app.App, storage *s
 }
 
 func (m Model) Init() tea.Cmd {
+	// huk for render
+	time.Sleep(time.Second)
 	var c tea.Cmd
 	if m.key.GetPrivateKeyPath() == "" {
 		c = cmd.ShowFilepicker()
@@ -90,25 +92,26 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case cmd.ScreenFocusMsg:
 		m.focused = false
 	case cmd.ScreenBlurMsg:
-		m.cursor = 0
 		m.focused = true
 	case cmd.UpdateBtnsMsg:
 		updateBtns(&m)
-		m.initialized = true
 		return m, nil
 	case cmd.SelectPrivatePathMsg:
 		err := m.key.SetPrivateKeyPath(string(tMsg))
 		if err != nil {
 			return m, cmd.Msg(err.Error())
 		}
+		updateBtns(&m)
 		m.storage.Clear()
-		return m, cmd.UpdateTable("", m.storage.List())
+		return m, tea.Batch(cmd.ShowTable(), cmd.UpdateTable("", m.storage.List()))
 	case cmd.ShowFilepickerMsg:
 		m.screen = newFilepickerModel()
-		return m, tea.Sequence(cmd.ScreenFocus(), m.screen.Init(), tea.WindowSize(), cmd.UpdateBtns())
+		updateBtns(&m)
+		return m, tea.Sequence(cmd.ScreenFocus(), m.screen.Init(), tea.WindowSize())
 	case cmd.ShowTableMsg:
 		m.screen = m.table
-		return m, tea.Sequence(cmd.ScreenFocus(), tea.WindowSize(), cmd.UpdateBtns())
+		updateBtns(&m)
+		return m, tea.Sequence(cmd.ScreenFocus(), tea.WindowSize())
 	case cmd.ShowFormIDMsg:
 		secret, err := m.storage.Get(tMsg.ID)
 		if err != nil {
@@ -138,13 +141,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 	case cmd.ShowFormTextMsg:
 		m.screen = form.MakeFormTextModel(tMsg.ID, tMsg.NewID, tMsg.Meta, tMsg.Text)
-		return m, tea.Sequence(cmd.ScreenFocus(), m.screen.Init(), tea.WindowSize(), cmd.UpdateBtns())
+		updateBtns(&m)
+		return m, tea.Sequence(cmd.ScreenFocus(), m.screen.Init(), tea.WindowSize())
 	case cmd.ShowFormLoginPassMsg:
 		m.screen = form.MakeFormLoginPassModel(tMsg.ID, tMsg.NewID, tMsg.Meta, tMsg.Login, tMsg.Pass)
-		return m, tea.Sequence(cmd.ScreenFocus(), m.screen.Init(), tea.WindowSize(), cmd.UpdateBtns())
+		updateBtns(&m)
+		return m, tea.Sequence(cmd.ScreenFocus(), m.screen.Init(), tea.WindowSize())
 	case cmd.ShowFormCardMsg:
 		m.screen = form.MakeFormCardModel(tMsg.ID, tMsg.NewID, tMsg.Meta, tMsg.CCN, tMsg.Expire, tMsg.CVV)
-		return m, tea.Sequence(cmd.ScreenFocus(), m.screen.Init(), tea.WindowSize(), cmd.UpdateBtns())
+		updateBtns(&m)
+		return m, tea.Sequence(cmd.ScreenFocus(), m.screen.Init(), tea.WindowSize())
 	case cmd.UpdateTableMsg:
 		if _, ok := m.screen.(tableModel); !ok {
 			m.table, _ = m.table.Update(tMsg)

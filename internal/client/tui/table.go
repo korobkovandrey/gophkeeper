@@ -50,10 +50,13 @@ func (m tableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch tMsg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.Model.SetHeight(tMsg.Height - 2)
+		return m, nil
 	case cmd.ScreenFocusMsg:
 		m.Model.Focus()
+		return m, nil
 	case cmd.ScreenBlurMsg:
 		m.Model.Blur()
+		return m, nil
 	case tea.KeyMsg:
 		if tMsg.Type == tea.KeyTab {
 			return m, cmd.ScreenBlur()

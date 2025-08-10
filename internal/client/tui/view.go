@@ -10,9 +10,6 @@ import (
 )
 
 func (m Model) View() string {
-	if !m.initialized {
-		return ""
-	}
 	var btns []string
 	for i := 0; i < len(m.btns); i++ {
 		name, ok := m.btnNames[m.btns[i]]

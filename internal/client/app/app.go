@@ -82,8 +82,8 @@ func (a *App) run(ctx context.Context) {
 			event, err := stream.Recv()
 			if err != nil {
 				a.onlineEvent(false)
+				a.l.InfoCtx(ctx, "stream error", zap.Error(err))
 				if status.Code(err) == codes.Canceled {
-					a.l.ErrorCtx(ctx, "canceled", zap.Error(err))
 					return
 				}
 				break

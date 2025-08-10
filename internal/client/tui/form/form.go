@@ -84,9 +84,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.viewport.Height = msg.Height
 		return m, nil
 	case cmd.ScreenFocusMsg:
+		m.cursor = -1
 		m.focused = true
 	case cmd.ScreenBlurMsg:
-		newCursor = -1
 		m.focused = false
 	case cmd.EventSaveMsg:
 		if !m.validate() {
@@ -109,7 +109,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.cursor < lenInputs-1 {
 				newCursor = m.cursor + 1
 			} else {
-				return m, cmd.ScreenBlur()
+				newCursor = -1
+				m.focused = false
+				c = cmd.ScreenBlur()
 			}
 		case tea.KeyCtrlD:
 			addMetas(&m, model.NewMeta("", ""))
@@ -171,6 +173,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.cursor = newCursor
 	}
 	m.viewport.SetContent(m.view())
+	if newCursor < 0 {
+		//m.cursor
+	}
 	return m, c
 }
 

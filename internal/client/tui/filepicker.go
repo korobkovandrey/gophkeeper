@@ -16,7 +16,14 @@ type filepickerModel struct {
 
 func newFilepickerModel() filepickerModel {
 	fp := filepicker.New()
-	fp.CurrentDirectory, _ = os.UserHomeDir()
+	var err error
+	fp.CurrentDirectory, err = os.Getwd()
+	if err != nil {
+		fp.CurrentDirectory, err = os.UserHomeDir()
+		if err != nil {
+			fp.CurrentDirectory = "."
+		}
+	}
 	fp.ShowHidden = true
 	fp.AutoHeight = false
 	return filepickerModel{
@@ -34,8 +41,10 @@ func (m filepickerModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.Model.SetHeight(tMsg.Height - 2)
 	case cmd.ScreenFocusMsg:
 		m.focused = true
+		return m, nil
 	case cmd.ScreenBlurMsg:
 		m.focused = false
+		return m, nil
 	}
 	if !m.focused {
 		return m, nil
