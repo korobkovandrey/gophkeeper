@@ -80,47 +80,6 @@ jobs:
             README.md
           retention-days: 3
 
-  publish-pr-artifacts:
-    needs: build
-    if: github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'master'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-
-      - name: List downloaded artifacts
-        run: |
-          ls -R artifacts
-
-      - name: Comment on PR with artifact links
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs').promises;
-            const path = require('path');
-            const artifactsDir = 'artifacts';
-            let commentBody = '### Artifacts from this Pull Request\n\n';
-            
-            // Iterate through artifact directories
-            const artifactDirs = await fs.readdir(artifactsDir);
-            for (const dir of artifactDirs) {
-              const files = await fs.readdir(path.join(artifactsDir, dir));
-              commentBody += `#### ${dir}\n`;
-              for (const file of files) {
-                commentBody += `- ${file}\n`;
-              }
-            }
-            
-            // Post comment to PR
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: commentBody
-            });
-
   release:
     needs: build
     if: github.event_name == 'release' && github.event.action == 'published'
