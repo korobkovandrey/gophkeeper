@@ -87,6 +87,6 @@ func main() {
 		s.GracefulStop()
 	}()
 	if err = s.Serve(serv); err != nil && !errors.Is(err, grpc.ErrServerStopped) {
-		l.FatalCtx(ctx, "failed to start gRPC server", zap.Error(err))
+		l.ErrorCtx(ctx, "failed to start gRPC server", zap.Error(err))
 	}
 }

@@ -62,12 +62,16 @@ func (s *Secret) Clone() *Secret {
 	return secret
 }
 
+func NowTime() time.Time {
+	return time.Now().Truncate(time.Second)
+}
+
 func NewSecret(id, newID ID, typ Type, meta Meta, data []byte, publicKey *rsa.PublicKey) (*Secret, error) {
 	s := &Secret{
 		ID:          id,
 		NewID:       newID,
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
+		CreatedAt:   NowTime(),
+		UpdatedAt:   NowTime(),
 		Status:      StatusNew,
 		Type:        typ,
 		DecryptMeta: meta,
@@ -104,5 +108,27 @@ func NewSecret(id, newID ID, typ Type, meta Meta, data []byte, publicKey *rsa.Pu
 		return nil, fmt.Errorf("failed to generate nonce: %v", err)
 	}
 	s.Data = gcm.Seal(nonce, nonce, data, nil)
+	return s, nil
+}
+
+func MakeSecret(id, newID string, cryptBytes, meta, data []byte, createdAt, updatedAt time.Time, privateKey *rsa.PrivateKey) (*Secret, error) {
+	s := &Secret{
+		ID:        ID(id),
+		NewID:     ID(newID),
+		Crypt:     cryptBytes,
+		Meta:      meta,
+		Data:      data,
+		CreatedAt: createdAt,
+		UpdatedAt: updatedAt,
+		Status:    StatusSynced,
+	}
+	metaBytes, err := crypt.Decrypt(privateKey, s.Crypt, s.Meta)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decrypt meta: %w", err)
+	}
+	s.DecryptMeta, s.Type, err = UnmarshalMetaAndType(metaBytes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal meta and type: %w", err)
+	}
 	return s, nil
 }

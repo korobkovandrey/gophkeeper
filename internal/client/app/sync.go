@@ -55,7 +55,10 @@ func (a *App) sync(ctx context.Context) error {
 			if err != nil {
 				return fmt.Errorf("failed to delete secret: %w", err)
 			}
-			a.store.Delete(secret.ID)
+			err = a.store.Delete(secret.ID, secret.UpdatedAt)
+			if err != nil {
+				return fmt.Errorf("failed to delete secret: %w", err)
+			}
 			a.updateEvent()
 		} else {
 			auth, err := a.makeSignAuth(secret.ID, []byte(secret.NewID), secret.Crypt, secret.Meta, secret.Data, b)
@@ -74,7 +77,7 @@ func (a *App) sync(ctx context.Context) error {
 				return fmt.Errorf("failed to store secret: %w", err)
 			}
 			secret.Status = model.StatusSynced
-			err = a.store.Synced(secret)
+			err = a.store.SyncStore(secret)
 			if err != nil {
 				return fmt.Errorf("failed to sync secret: %w", err)
 			}

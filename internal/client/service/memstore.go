@@ -1,7 +1,7 @@
 package service
 
 import (
-	"errors"
+	"fmt"
 	"gophkeeper/internal/client/model"
 	"sort"
 	"sync"
@@ -25,6 +25,7 @@ func (ms *MemStore) Store(secret *model.Secret) error {
 	ms.mutex.Lock()
 	defer ms.mutex.Unlock()
 	if existing, ok := ms.store[secret.ID]; ok {
+		secret.CreatedAt = existing.CreatedAt
 		if existing.Status == model.StatusNew {
 			if secret.ID != secret.NewID {
 				delete(ms.store, secret.ID)
@@ -42,19 +43,21 @@ func (ms *MemStore) Store(secret *model.Secret) error {
 	return nil
 }
 
-func (ms *MemStore) Synced(secret *model.Secret) error {
+func (ms *MemStore) SyncStore(secret *model.Secret) error {
 	ms.mutex.Lock()
 	defer ms.mutex.Unlock()
 	existing, existsOld := ms.store[secret.ID]
 	if existsOld {
 		if secret.UpdatedAt.Unix() < existing.UpdatedAt.Unix() {
-			return errors.New("conflict")
+			return fmt.Errorf("conflict1: eventTime %v < updatedAt %v", secret.UpdatedAt, existing.UpdatedAt)
+			//return errors.New("conflict")
 		}
 	}
 	if secret.ID != secret.NewID {
 		if existingNew, ok := ms.store[secret.NewID]; ok {
 			if secret.UpdatedAt.Unix() < existingNew.UpdatedAt.Unix() {
-				return errors.New("conflict")
+				return fmt.Errorf("conflict1: eventTime %v < updatedAt %v", secret.UpdatedAt, existingNew.UpdatedAt)
+				//return errors.New("conflict")
 			}
 		}
 		if existsOld {
@@ -87,14 +90,21 @@ func (ms *MemStore) Deleting(id model.ID) {
 		return
 	}
 	ms.store[id].Status = model.StatusDeleting
-	ms.store[id].UpdatedAt = time.Now()
+	ms.store[id].UpdatedAt = model.NowTime()
 	ms.sync()
 }
 
-func (ms *MemStore) Delete(id model.ID) {
+func (ms *MemStore) Delete(id model.ID, eventTime time.Time) error {
 	ms.mutex.Lock()
 	defer ms.mutex.Unlock()
+	if _, ok := ms.store[id]; !ok {
+		return nil
+	}
+	if eventTime.Unix() < ms.store[id].UpdatedAt.Unix() {
+		return fmt.Errorf("conflict: eventTime %v < updatedAt %v", eventTime, ms.store[id].UpdatedAt)
+	}
 	delete(ms.store, id)
+	return nil
 }
 
 func (ms *MemStore) List() []*model.Secret {
