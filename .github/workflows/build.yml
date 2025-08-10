@@ -3,11 +3,11 @@ name: Build Go Binaries
 on:
   push:
     branches:
-      - main
+      - master
       - dev
   pull_request:
     branches:
-      - main
+      - master
   release:
     types: [published]
 
@@ -51,6 +51,19 @@ jobs:
             -ldflags "-X main.buildVersion=${{ env.BUILD_VERSION }} -X main.buildDate=${{ env.BUILD_DATE }} -X main.buildCommit=${{ env.BUILD_COMMIT }}" \
             -o server-${{ matrix.goos }}-${{ matrix.goarch }}$EXT ./cmd/server
 
+      - name: Prepare config file
+        run: |
+          cp config_client.example.json config_client.json
+          cp config_server.example.json config_server.json
+
+      - name: Prepare docker files
+        run: |
+          mkdir -p docker/db/init
+          cp -r internal/server/infra/db/init/* docker/db/init/
+          cp docker-compose.yaml docker/docker-compose.yaml
+          sed -i 's|\./internal/server/infra/db/init|\./docker/db/init|' docker/docker-compose.yaml
+          echo "DB_PORT_EXTERNAL=5432\n" > docker/.env
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -58,9 +71,54 @@ jobs:
           path: |
             client-${{ matrix.goos }}-${{ matrix.goarch }}*
             server-${{ matrix.goos }}-${{ matrix.goarch }}*
-            certs
+            config_client.json
+            config_server.json
+            certs/*
+            docker/*
+            screen*.png
             README.md
           retention-days: 3
+
+  publish-pr-artifacts:
+    needs: build
+    if: github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: List downloaded artifacts
+        run: |
+          ls -R artifacts
+
+      - name: Comment on PR with artifact links
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs').promises;
+            const path = require('path');
+            const artifactsDir = 'artifacts';
+            let commentBody = '### Artifacts from this Pull Request\n\n';
+            
+            // Iterate through artifact directories
+            const artifactDirs = await fs.readdir(artifactsDir);
+            for (const dir of artifactDirs) {
+              const files = await fs.readdir(path.join(artifactsDir, dir));
+              commentBody += `#### ${dir}\n`;
+              for (const file of files) {
+                commentBody += `- ${file}\n`;
+              }
+            }
+            
+            // Post comment to PR
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: commentBody
+            });
 
   release:
     needs: build
