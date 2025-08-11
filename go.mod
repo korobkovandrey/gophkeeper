@@ -21,7 +21,11 @@ require (
 	google.golang.org/protobuf v1.36.6
 )
 
-require github.com/atotto/clipboard v0.1.4 // indirect
+require (
+	github.com/DATA-DOG/go-sqlmock v1.5.2 // indirect
+	github.com/atotto/clipboard v0.1.4 // indirect
+	github.com/kisielk/sqlstruct v0.0.0-20201105191214-5f3e10d3ab46 // indirect
+)
 
 require (
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
