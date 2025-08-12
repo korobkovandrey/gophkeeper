@@ -14,7 +14,7 @@ import (
 //go:embed migrations/*.sql
 var embedSQL embed.FS
 
-func Migrate(dsn string) error {
+func runMigrate(dsn string) error {
 	d, err := iofs.New(embedSQL, "migrations")
 	if err != nil {
 		return fmt.Errorf("failed to return an iofs driver: %w", err)

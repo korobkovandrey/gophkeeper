@@ -15,11 +15,10 @@ import (
 func TestStore_CreateSecret(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
+	store := newStore(db)
 	defer func() {
-		assert.NoError(t, db.Close())
+		assert.NoError(t, store.Close())
 	}()
-
-	store := NewStore(db)
 	ctx := context.Background()
 	now := time.Now()
 
@@ -77,11 +76,10 @@ func TestStore_CreateSecret(t *testing.T) {
 func TestStore_FindSecret(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
+	store := newStore(db)
 	defer func() {
-		assert.NoError(t, db.Close())
+		assert.NoError(t, store.Close())
 	}()
-
-	store := NewStore(db)
 	ctx := context.Background()
 	now := time.Now()
 
@@ -124,11 +122,10 @@ func TestStore_FindSecret(t *testing.T) {
 func TestStore_CreateUser(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
+	store := newStore(db)
 	defer func() {
-		assert.NoError(t, db.Close())
+		assert.NoError(t, store.Close())
 	}()
-
-	store := NewStore(db)
 	ctx := context.Background()
 	now := time.Now()
 
@@ -157,11 +154,10 @@ func TestStore_CreateUser(t *testing.T) {
 func TestStore_GetUserByFingerprint(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
+	store := newStore(db)
 	defer func() {
-		assert.NoError(t, db.Close())
+		assert.NoError(t, store.Close())
 	}()
-
-	store := NewStore(db)
 	ctx := context.Background()
 	now := time.Now()
 
@@ -197,11 +193,10 @@ func TestStore_GetUserByFingerprint(t *testing.T) {
 func TestStore_ListSecrets(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
+	store := newStore(db)
 	defer func() {
-		assert.NoError(t, db.Close())
+		assert.NoError(t, store.Close())
 	}()
-
-	store := NewStore(db)
 	ctx := context.Background()
 	now := time.Now()
 	userID := int64(1)
