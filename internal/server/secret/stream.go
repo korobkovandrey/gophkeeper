@@ -19,7 +19,7 @@ func (s *ServiceServer) Stream(req *proto.Auth, stream grpc.ServerStreamingServe
 		return status.Error(codes.Internal, fmt.Errorf("failed to subscribe: %w", err).Error())
 	}
 	defer s.sync.Unsubscribe(subscriber)
-	secrets, err := s.secret.List(stream.Context(), user.ID)
+	secrets, err := s.listSecretsFunc(stream.Context(), user.ID)
 	if err != nil {
 		return status.Error(codes.Internal, fmt.Errorf("failed to list secrets: %w", err).Error())
 	}

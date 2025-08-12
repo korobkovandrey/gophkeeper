@@ -4,11 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"gophkeeper/internal/server/auth"
+	"gophkeeper/internal/server"
 	"gophkeeper/internal/server/config"
 	"gophkeeper/internal/server/infra/db"
 	"gophkeeper/internal/server/interceptors/logger"
-	"gophkeeper/internal/server/secret"
 	"gophkeeper/internal/server/service"
 	"gophkeeper/pkg/logging"
 	pb "gophkeeper/pkg/proto"
@@ -61,17 +60,11 @@ func main() {
 	}()
 	store := db.NewStore(dbConnect)
 
-	userService := service.NewUserService(store)
+	authServiceServer := server.MakeAuthServiceServer(store)
 	syncService := service.NewSyncService()
-	secretService := service.NewSecretService(store)
-	authServiceServer := auth.NewServiceServer(auth.WithUserService(userService))
-	secretServiceServer := secret.NewServiceServer(
-		secret.WithUserService(userService),
-		secret.WithSyncService(syncService),
-		secret.WithSecretService(secretService),
-	)
-	var opts []grpc.ServerOption
+	secretServiceServer := server.MakeSecretServiceServer(syncService, store)
 
+	var opts []grpc.ServerOption
 	if cfg.CertPath != "" && cfg.KeyPath != "" {
 		tlsCreds, err := credentials.NewServerTLSFromFile(cfg.CertPath, cfg.KeyPath)
 		if err != nil {
@@ -79,7 +72,6 @@ func main() {
 		}
 		opts = append(opts, grpc.Creds(tlsCreds))
 	}
-
 	serv, err := net.Listen("tcp", cfg.Addr)
 	if err != nil {
 		l.FatalCtx(ctx, "failed to listen gRPC server", zap.Error(err))
@@ -94,8 +86,9 @@ func main() {
 		syncService.Close()
 		s.GracefulStop()
 	}()
+
 	if err = s.Serve(serv); err != nil && !errors.Is(err, grpc.ErrServerStopped) {
-		l.ErrorCtx(ctx, "failed to start gRPC server", zap.Error(err))
+		l.ErrorCtx(ctx, "failed serve gRPC server", zap.Error(err))
 	} else if cfg.IsWrite() {
 		if err = cfg.WriteConfig(); err != nil {
 			l.ErrorCtx(ctx, "failed to write config", zap.Error(err))

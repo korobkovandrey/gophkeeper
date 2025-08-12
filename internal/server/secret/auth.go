@@ -21,7 +21,7 @@ func (s *ServiceServer) findAndAuthUser(ctx context.Context, req *proto.Auth, da
 	if req.Timestamp < currentTime-s.timeWindow || req.Timestamp > currentTime+s.timeWindow {
 		return nil, status.Error(codes.InvalidArgument, "Timestamp is out of range")
 	}
-	user, err := s.user.Find(ctx, req.UserId)
+	user, err := s.findUserFunc(ctx, req.UserId)
 	if err != nil {
 		if errors.Is(err, service.ErrNotFound) {
 			return nil, status.Error(codes.NotFound, "user not found")
