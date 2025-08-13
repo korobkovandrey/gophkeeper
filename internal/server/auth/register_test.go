@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -163,7 +164,7 @@ func TestServiceServer_Register(t *testing.T) {
 			s := NewServiceServer(WithRegisterUserFunc(tt.registerStub.RegisterUser))
 			resp, err := s.Register(t.Context(), tt.req)
 			if tt.expectedErr == nil {
-				assert.NoError(t, err, "expected no error")
+				require.NoError(t, err, "expected no error")
 			} else {
 				assert.Error(t, err, "expected an error")
 				if tt.checkErrorContains {

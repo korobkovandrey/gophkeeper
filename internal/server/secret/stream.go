@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+// Stream возвращает поток секретов.
 func (s *ServiceServer) Stream(req *proto.Auth, stream grpc.ServerStreamingServer[proto.SecretEvent]) error {
 	user, err := s.findAndAuthUser(stream.Context(), req)
 	if err != nil {

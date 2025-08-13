@@ -13,6 +13,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+// findAndAuthUser checks if the user exists and if the signature is valid
 func (s *ServiceServer) findAndAuthUser(ctx context.Context, req *proto.Auth, data ...[]byte) (*service.User, error) {
 	if len(req.Signature) == 0 {
 		return nil, status.Error(codes.InvalidArgument, "Signature is required")

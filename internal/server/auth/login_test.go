@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -186,7 +187,7 @@ func TestServiceServer_Login(t *testing.T) {
 			s := NewServiceServer(WithFindUserFunc(tt.findStub.FindUserByFingerprint))
 			resp, err := s.Login(t.Context(), tt.req)
 			if tt.expectedErr == nil {
-				assert.NoError(t, err, "expected no error")
+				require.NoError(t, err, "expected no error")
 			} else {
 				assert.Error(t, err, "expected an error")
 				if tt.checkErrorContains {
