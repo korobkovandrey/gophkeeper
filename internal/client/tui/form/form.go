@@ -42,7 +42,7 @@ type Model struct {
 	IsValid  bool
 }
 
-func NewModel(id, newID model.ID, fields fieldsModel, meta model.Meta) Model {
+func newModel(id, newID model.ID, fields fieldsModel, meta model.Meta) Model {
 	if len(meta) == 0 {
 		meta = model.NewMeta("")
 	}

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"gophkeeper/internal/client/model"
 	"gophkeeper/pkg/crypt"
-	"time"
 )
 
 type Storage struct {
@@ -105,13 +104,4 @@ func (s *Storage) Delete(id model.ID) {
 
 func (s *Storage) Clear() {
 	s.m.Clear()
-}
-
-func (s *Storage) Change() chan bool {
-	ch := make(chan bool)
-	go func() {
-		time.Sleep(10 * time.Second)
-		ch <- true
-	}()
-	return ch
 }
