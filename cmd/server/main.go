@@ -38,7 +38,6 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 	l.InfoCtx(ctx, "", zap.Any("config", cfg))
-
 	store, err := db.MakeStoreConnectAndMigrate(ctx, cfg.DSN)
 	if err != nil {
 		l.FatalCtx(ctx, "failed to connect to database", zap.Error(err))
@@ -48,7 +47,6 @@ func main() {
 			l.ErrorCtx(ctx, "failed to close store", zap.Error(closeErr))
 		}
 	}()
-
 	if err = server.Serve(ctx, cfg, store, l); err != nil {
 		l.ErrorCtx(ctx, "failed to serve gRPC server", zap.Error(err))
 	} else if cfg.IsWrite() {

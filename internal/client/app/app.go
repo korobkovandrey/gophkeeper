@@ -29,18 +29,49 @@ type App struct {
 	UpdateCh chan struct{}
 }
 
-func NewApp(l *logging.ZapLogger, conn *grpc.ClientConn, t *service.Time, key *service.Key, store *service.MemStore) *App {
+// NewApp создает новое приложение.
+func NewApp(conn *grpc.ClientConn, opts ...Option) *App {
 	a := &App{
 		auth:     proto.NewAuthServiceClient(conn),
 		secret:   proto.NewSecretServiceClient(conn),
-		l:        l,
-		time:     t,
-		key:      key,
-		store:    store,
 		OnlineCh: make(chan struct{}, 1),
 		UpdateCh: make(chan struct{}, 1),
 	}
+	for _, opt := range opts {
+		opt(a)
+	}
 	return a
+}
+
+// Option опция для конфигурации App.
+type Option func(*App)
+
+// WithLogger устанавливает логгер.
+func WithLogger(l *logging.ZapLogger) Option {
+	return func(a *App) {
+		a.l = l
+	}
+}
+
+// WithTimeService устанавливает сервис времени.
+func WithTimeService(t *service.Time) Option {
+	return func(a *App) {
+		a.time = t
+	}
+}
+
+// WithKeyService устанавливает сервис ключей.
+func WithKeyService(key *service.Key) Option {
+	return func(a *App) {
+		a.key = key
+	}
+}
+
+// WithStore устанавливает хранилище.
+func WithStore(store *service.MemStore) Option {
+	return func(a *App) {
+		a.store = store
+	}
 }
 
 func (a *App) IsLogged() bool {
