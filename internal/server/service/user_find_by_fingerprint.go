@@ -5,18 +5,12 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"gophkeeper/internal/server/infra/db/query"
 )
-
-// UserFinderByFingerprint defines the interface for finding a user by fingerprint.
-type UserFinderByFingerprint interface {
-	GetUserByFingerprint(ctx context.Context, fingerprint string) (query.User, error)
-}
 
 type FindUserByFingerprintFunc func(ctx context.Context, fingerprint string) (*User, error)
 
 // NewFindUserByFingerprintFunc returns a function that handles finding a user by fingerprint.
-func NewFindUserByFingerprintFunc(finderByFingerprint UserFinderByFingerprint) FindUserByFingerprintFunc {
+func NewFindUserByFingerprintFunc(finderByFingerprint userFinderByFingerprint) FindUserByFingerprintFunc {
 	return func(ctx context.Context, fingerprint string) (*User, error) {
 		qUser, err := finderByFingerprint.GetUserByFingerprint(ctx, fingerprint)
 		if err != nil {

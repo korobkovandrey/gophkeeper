@@ -13,6 +13,8 @@ import (
 	"github.com/jackc/pgerrcode"
 )
 
+//go:generate mockgen -source=user_register.go -destination=mocks/user_register.go -package=mocks
+
 // userCreator defines the interface for creating a user.
 type userCreator interface {
 	CreateUser(ctx context.Context, params query.CreateUserParams) (userID int64, err error)
@@ -26,6 +28,7 @@ type userFinderByFingerprint interface {
 // RegisterUserFunc is a function that handles user registration.
 type RegisterUserFunc func(ctx context.Context, publicKeyBytes []byte) (int64, error)
 
+// registerRepository defines the interface for registering a user.
 type registerRepository interface {
 	userCreator
 	userFinderByFingerprint

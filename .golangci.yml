@@ -36,6 +36,8 @@ linters-settings:
       - '10'
       - '100'
       - '1000'
+      - '2048'
+      - '4096'
     ignored-functions:
       - strings.SplitN
   govet:

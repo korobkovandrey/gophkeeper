@@ -52,6 +52,9 @@ func (s *SyncService) Unsubscribe(subscriber *Subscriber) {
 		return
 	}
 	delete(s.subscribers[subscriber.userID], subscriber)
+	if len(s.subscribers[subscriber.userID]) == 0 {
+		delete(s.subscribers, subscriber.userID)
+	}
 	close(subscriber.C)
 }
 

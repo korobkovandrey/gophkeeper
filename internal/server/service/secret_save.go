@@ -9,38 +9,40 @@ import (
 	"time"
 )
 
-// SecretFinder defines the interface for finding a secret by ID and user ID.
-type SecretFinder interface {
+//go:generate mockgen -source=secret_save.go -destination=mocks/secret_save.go -package=mocks
+
+// secretFinder defines the interface for finding a secret by ID and user ID.
+type secretFinder interface {
 	FindSecret(ctx context.Context, arg query.FindSecretParams) (query.Secret, error)
 }
 
-// SecretCreator defines the interface for creating a secret.
-type SecretCreator interface {
+// secretCreator defines the interface for creating a secret.
+type secretCreator interface {
 	CreateSecret(ctx context.Context, arg query.CreateSecretParams) (query.Secret, error)
 }
 
-// SecretUpdater defines the interface for updating a secret.
-type SecretUpdater interface {
+// secretUpdater defines the interface for updating a secret.
+type secretUpdater interface {
 	UpdateSecret(ctx context.Context, arg query.UpdateSecretParams) (query.Secret, error)
 }
 
-// SecretDeleter defines the interface for deleting a secret.
-type SecretDeleter interface {
+// secretDeleter defines the interface for deleting a secret.
+type secretDeleter interface {
 	DeleteSecret(ctx context.Context, arg query.DeleteSecretParams) (query.Secret, error)
 }
 
-type SecretRepository interface {
-	SecretFinder
-	SecretCreator
-	SecretUpdater
-	SecretDeleter
+type secretRepository interface {
+	secretFinder
+	secretCreator
+	secretUpdater
+	secretDeleter
 }
 
 type SaveSecretFunc func(ctx context.Context, userID int64, id, newID string,
 	crypt, meta, data []byte, storeTime time.Time) (*Secret, error)
 
 // NewSaveSecretFunc returns a function that handles storing a secret.
-func NewSaveSecretFunc(r SecretRepository) SaveSecretFunc {
+func NewSaveSecretFunc(r secretRepository) SaveSecretFunc {
 	return func(ctx context.Context, userID int64, id, newID string, crypt, meta, data []byte, storeTime time.Time) (*Secret, error) {
 		_, err := r.FindSecret(ctx, query.FindSecretParams{
 			ID:     id,

@@ -9,6 +9,9 @@ import (
 	"crypto/sha256"
 	"encoding/binary"
 	"fmt"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 const (
@@ -75,4 +78,11 @@ func Decrypt(privateKey *rsa.PrivateKey, encryptedAESKey, encryptedData []byte) 
 		return nil, fmt.Errorf("AES-GCM decryption failed: %w", err)
 	}
 	return data, nil
+}
+
+func GenerateTestRSAKeyPair(t *testing.T) (*rsa.PrivateKey, *rsa.PublicKey) {
+	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	assert.NoError(t, err)
+	publicKey := &privateKey.PublicKey
+	return privateKey, publicKey
 }

@@ -12,13 +12,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func generateTestRSAKeyPair(t *testing.T) (*rsa.PrivateKey, *rsa.PublicKey) {
-	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
-	assert.NoError(t, err)
-	publicKey := &privateKey.PublicKey
-	return privateKey, publicKey
-}
-
 func TestHashData(t *testing.T) {
 	data1 := []byte("data1")
 	data2 := []byte("data2")
@@ -31,7 +24,7 @@ func TestHashData(t *testing.T) {
 }
 
 func TestVerifyPSSWithTimestamp(t *testing.T) {
-	privateKey, publicKey := generateTestRSAKeyPair(t)
+	privateKey, publicKey := GenerateTestRSAKeyPair(t)
 	data := []byte("test data")
 	timestamp := time.Now().Unix()
 
@@ -51,7 +44,7 @@ func TestVerifyPSSWithTimestamp(t *testing.T) {
 }
 
 func TestVerifyPSSWithTimestampAndUserID(t *testing.T) {
-	privateKey, publicKey := generateTestRSAKeyPair(t)
+	privateKey, publicKey := GenerateTestRSAKeyPair(t)
 	data := []byte("test data")
 	userID := int64(123)
 	timestamp := time.Now().Unix()
@@ -72,7 +65,7 @@ func TestVerifyPSSWithTimestampAndUserID(t *testing.T) {
 }
 
 func TestSignPSSWithTimestamp(t *testing.T) {
-	privateKey, _ := generateTestRSAKeyPair(t)
+	privateKey, _ := GenerateTestRSAKeyPair(t)
 	data := []byte("test data")
 	timestamp := time.Now().Unix()
 
@@ -87,7 +80,7 @@ func TestSignPSSWithTimestamp(t *testing.T) {
 }
 
 func TestSignPSSWithTimestampAndUserID(t *testing.T) {
-	privateKey, _ := generateTestRSAKeyPair(t)
+	privateKey, _ := GenerateTestRSAKeyPair(t)
 	data := []byte("test data")
 	userID := int64(123)
 	timestamp := time.Now().Unix()
@@ -103,7 +96,7 @@ func TestSignPSSWithTimestampAndUserID(t *testing.T) {
 }
 
 func TestDecrypt(t *testing.T) {
-	privateKey, publicKey := generateTestRSAKeyPair(t)
+	privateKey, publicKey := GenerateTestRSAKeyPair(t)
 	data := []byte("test data")
 
 	// Generate AES key

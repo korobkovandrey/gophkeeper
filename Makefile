@@ -12,7 +12,12 @@ migration:
 
 coverprofile:
 	go test ./... -covermode=count -coverprofile cover.out.tmp && cat cover.out.tmp | grep -v -e "mocks" -e "test" > cover.out \
- 		&& rm cover.out.tmp && go tool cover -html cover.out -o coverprofile.html && go tool cover -func cover.out
+ 		&& rm cover.out.tmp && go tool cover -html cover.out -o coverprofile-full.html && go tool cover -func cover.out
+
+coverprofile-services:
+	go test ./... -covermode=count -coverprofile cover.out.tmp && cat cover.out.tmp \
+		| grep -v -e "test" -e "mocks" -e "pkg/proto" -e "pkg/logging" -e "/cmd" -e "internal/client/tui" > cover.out \
+ 		&& rm cover.out.tmp && go tool cover -html cover.out -o coverprofile-services.html && go tool cover -func cover.out
 
 proto-auth:
 	protoc --go_out=. --go-grpc_out=. api/proto/auth.proto

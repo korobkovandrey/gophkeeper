@@ -8,15 +8,17 @@ import (
 	"gophkeeper/internal/server/infra/db/query"
 )
 
-// UserFinderByID defines the interface for finding a user by ID.
-type UserFinderByID interface {
+//go:generate mockgen -source=user_find.go -destination=mocks/user_find.go -package=mocks
+
+// userFinderByID defines the interface for finding a user by ID.
+type userFinderByID interface {
 	GetUserById(ctx context.Context, id int64) (query.User, error)
 }
 
 type FindUserByIDFunc func(ctx context.Context, id int64) (*User, error)
 
 // NewFindUserByIDFunc returns a function that handles finding a user by ID.
-func NewFindUserByIDFunc(finderByID UserFinderByID) FindUserByIDFunc {
+func NewFindUserByIDFunc(finderByID userFinderByID) FindUserByIDFunc {
 	return func(ctx context.Context, id int64) (*User, error) {
 		qUser, err := finderByID.GetUserById(ctx, id)
 		if err != nil {

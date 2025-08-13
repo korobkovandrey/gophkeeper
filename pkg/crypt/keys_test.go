@@ -36,7 +36,7 @@ func TestFingerprint(t *testing.T) {
 }
 
 func TestRSAPublicKeyFromBytes(t *testing.T) {
-	_, publicKey := generateTestRSAKeyPair(t)
+	_, publicKey := GenerateTestRSAKeyPair(t)
 	publicKeyBytes, err := x509.MarshalPKIXPublicKey(publicKey)
 	assert.NoError(t, err)
 
@@ -88,7 +88,7 @@ func TestDecodePublicKey(t *testing.T) {
 }
 
 func TestParsePrivateKey(t *testing.T) {
-	privateKey, _ := generateTestRSAKeyPair(t)
+	privateKey, _ := GenerateTestRSAKeyPair(t)
 	sshPrivateKey, err := ssh.MarshalPrivateKey(privateKey, "test")
 	assert.NoError(t, err)
 

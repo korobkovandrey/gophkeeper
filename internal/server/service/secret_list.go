@@ -6,15 +6,17 @@ import (
 	"gophkeeper/internal/server/infra/db/query"
 )
 
-// SecretLister defines the interface for listing secrets for a user.
-type SecretLister interface {
+//go:generate mockgen -source=secret_list.go -destination=mocks/secret_list.go -package=mocks
+
+// secretLister defines the interface for listing secrets for a user.
+type secretLister interface {
 	ListSecrets(ctx context.Context, userID int64) ([]query.Secret, error)
 }
 
 type ListSecretsFunc func(ctx context.Context, userID int64) ([]*Secret, error)
 
 // NewListSecretsFunc returns a function that handles listing secrets for a user.
-func NewListSecretsFunc(lister SecretLister) func(ctx context.Context, userID int64) ([]*Secret, error) {
+func NewListSecretsFunc(lister secretLister) func(ctx context.Context, userID int64) ([]*Secret, error) {
 	return func(ctx context.Context, userID int64) ([]*Secret, error) {
 		qSecrets, err := lister.ListSecrets(ctx, userID)
 		if err != nil {
