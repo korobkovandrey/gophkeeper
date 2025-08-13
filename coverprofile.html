@@ -1,0 +1,2243 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>model: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">gophkeeper/internal/client/model/meta.go (90.9%)</option>
+				
+				<option value="file1">gophkeeper/internal/client/model/model.go (83.3%)</option>
+				
+				<option value="file2">gophkeeper/internal/client/service/key.go (71.4%)</option>
+				
+				<option value="file3">gophkeeper/internal/client/service/memstore.go (94.8%)</option>
+				
+				<option value="file4">gophkeeper/internal/client/service/storage.go (85.0%)</option>
+				
+				<option value="file5">gophkeeper/internal/client/service/time.go (100.0%)</option>
+				
+				<option value="file6">gophkeeper/internal/server/auth/auth.go (100.0%)</option>
+				
+				<option value="file7">gophkeeper/internal/server/auth/login.go (100.0%)</option>
+				
+				<option value="file8">gophkeeper/internal/server/auth/register.go (100.0%)</option>
+				
+				<option value="file9">gophkeeper/internal/server/infra/db/db.go (0.0%)</option>
+				
+				<option value="file10">gophkeeper/internal/server/infra/db/migrate.go (0.0%)</option>
+				
+				<option value="file11">gophkeeper/internal/server/infra/db/query/db.go (100.0%)</option>
+				
+				<option value="file12">gophkeeper/internal/server/infra/db/query/secrets.sql.go (87.1%)</option>
+				
+				<option value="file13">gophkeeper/internal/server/infra/db/query/users.sql.go (100.0%)</option>
+				
+				<option value="file14">gophkeeper/internal/server/infra/db/store.go (25.0%)</option>
+				
+				<option value="file15">gophkeeper/internal/server/interceptors/logger/logger.go (100.0%)</option>
+				
+				<option value="file16">gophkeeper/internal/server/secret/auth.go (100.0%)</option>
+				
+				<option value="file17">gophkeeper/internal/server/secret/delete.go (100.0%)</option>
+				
+				<option value="file18">gophkeeper/internal/server/secret/secret.go (100.0%)</option>
+				
+				<option value="file19">gophkeeper/internal/server/secret/store.go (100.0%)</option>
+				
+				<option value="file20">gophkeeper/internal/server/secret/stream.go (86.4%)</option>
+				
+				<option value="file21">gophkeeper/internal/server/service/model.go (100.0%)</option>
+				
+				<option value="file22">gophkeeper/internal/server/service/secret_delete.go (100.0%)</option>
+				
+				<option value="file23">gophkeeper/internal/server/service/secret_find.go (100.0%)</option>
+				
+				<option value="file24">gophkeeper/internal/server/service/secret_list.go (100.0%)</option>
+				
+				<option value="file25">gophkeeper/internal/server/service/secret_save.go (91.7%)</option>
+				
+				<option value="file26">gophkeeper/internal/server/service/sync.go (97.1%)</option>
+				
+				<option value="file27">gophkeeper/internal/server/service/user_find.go (100.0%)</option>
+				
+				<option value="file28">gophkeeper/internal/server/service/user_find_by_fingerprint.go (100.0%)</option>
+				
+				<option value="file29">gophkeeper/internal/server/service/user_register.go (92.9%)</option>
+				
+				<option value="file30">gophkeeper/pkg/crypt/crypt.go (90.0%)</option>
+				
+				<option value="file31">gophkeeper/pkg/crypt/keys.go (89.3%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">no coverage</span>
+				<span class="cov1">low coverage</span>
+				<span class="cov2">*</span>
+				<span class="cov3">*</span>
+				<span class="cov4">*</span>
+				<span class="cov5">*</span>
+				<span class="cov6">*</span>
+				<span class="cov7">*</span>
+				<span class="cov8">*</span>
+				<span class="cov9">*</span>
+				<span class="cov10">high coverage</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package model
+
+import (
+        "bytes"
+        "encoding/json"
+        "fmt"
+        "strings"
+)
+
+type MetaData struct {
+        Key string
+        Val string
+}
+
+type Meta []MetaData
+
+func NewMeta(data ...string) Meta <span class="cov7" title="3">{
+        if len(data)%2 != 0 </span><span class="cov1" title="1">{
+                data = append(data, "")
+        }</span>
+        <span class="cov7" title="3">meta := make(Meta, len(data)/2)
+        for i := range meta </span><span class="cov8" title="4">{
+                i2 := i * 2
+                meta[i] = MetaData{
+                        Key: data[i2],
+                        Val: data[i2+1],
+                }
+        }</span>
+        <span class="cov7" title="3">return meta</span>
+}
+
+func (m Meta) ToString() string <span class="cov7" title="3">{
+        d := make([]string, len(m))
+        for i := range m </span><span class="cov7" title="3">{
+                d[i] = m[i].Key + ": " + m[i].Val
+        }</span>
+        <span class="cov7" title="3">return strings.Join(d, ", ")</span>
+}
+
+func (m Meta) MarshalWithType(typ Type) ([]byte, error) <span class="cov10" title="5">{
+        var buf bytes.Buffer
+        if err := buf.WriteByte(byte(typ)); err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to write Get byte %v: %w", typ, err)
+        }</span>
+        <span class="cov10" title="5">if err := json.NewEncoder(&amp;buf).Encode(m); err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to marshal meta: %w", err)
+        }</span>
+        <span class="cov10" title="5">return buf.Bytes(), nil</span>
+}
+
+func UnmarshalMetaAndType(data []byte) (Meta, Type, error) <span class="cov7" title="3">{
+        typ := Type(data[0])
+        var meta Meta
+        if err := json.Unmarshal(data[1:], &amp;meta); err != nil </span><span class="cov1" title="1">{
+                return nil, typ, fmt.Errorf("failed to unmarshal meta: %w", err)
+        }</span>
+        <span class="cov4" title="2">return meta, typ, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package model
+
+import (
+        "crypto/aes"
+        "crypto/cipher"
+        "crypto/rand"
+        "crypto/rsa"
+        "crypto/sha256"
+        "fmt"
+        "gophkeeper/pkg/crypt"
+        "time"
+)
+
+type ID string
+type Status int
+type Type byte
+
+const (
+        StatusNew Status = iota
+        StatusUpdating
+        StatusSynced
+        StatusDeleting
+)
+
+const (
+        TypeText Type = iota
+        TypeLoginPass
+        TypeCard
+)
+
+type Secret struct {
+        ID          ID
+        NewID       ID
+        Crypt       []byte
+        Meta        []byte
+        Data        []byte
+        CreatedAt   time.Time
+        UpdatedAt   time.Time
+        Status      Status
+        Type        Type
+        DecryptMeta Meta
+}
+
+func (s *Secret) Clone() *Secret <span class="cov1" title="1">{
+        secret := &amp;Secret{
+                ID:          s.ID,
+                NewID:       s.NewID,
+                Crypt:       make([]byte, len(s.Crypt)),
+                Meta:        make([]byte, len(s.Meta)),
+                Data:        make([]byte, len(s.Data)),
+                CreatedAt:   s.CreatedAt,
+                UpdatedAt:   s.UpdatedAt,
+                Status:      s.Status,
+                Type:        s.Type,
+                DecryptMeta: make(Meta, len(s.DecryptMeta)),
+        }
+        copy(secret.Crypt, s.Crypt)
+        copy(secret.Meta, s.Meta)
+        copy(secret.Data, s.Data)
+        copy(secret.DecryptMeta, s.DecryptMeta)
+        return secret
+}</span>
+
+func NowTime() time.Time <span class="cov10" title="6">{
+        return time.Now().Truncate(time.Second)
+}</span>
+
+func NewSecret(id, newID ID, typ Type, meta Meta, data []byte, publicKey *rsa.PublicKey) (*Secret, error) <span class="cov6" title="3">{
+        s := &amp;Secret{
+                ID:          id,
+                NewID:       newID,
+                CreatedAt:   NowTime(),
+                UpdatedAt:   NowTime(),
+                Status:      StatusNew,
+                Type:        typ,
+                DecryptMeta: meta,
+        }
+        metaBytes, err := meta.MarshalWithType(typ)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to marshal meta with type: %w", err)
+        }</span>
+        <span class="cov6" title="3">aesKey := make([]byte, crypt.AESKeySize)
+        _, err = rand.Read(aesKey)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to generate AES key: %w", err)
+        }</span>
+        <span class="cov6" title="3">s.Crypt, err = rsa.EncryptOAEP(sha256.New(), rand.Reader, publicKey, aesKey, nil)
+        if err != nil </span><span class="cov1" title="1">{
+                return nil, fmt.Errorf("RSA encryption failed: %w", err)
+        }</span>
+        <span class="cov4" title="2">block, err := aes.NewCipher(aesKey)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to create AES cipher: %w", err)
+        }</span>
+        <span class="cov4" title="2">gcm, err := cipher.NewGCM(block)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to create GCM: %v", err)
+        }</span>
+        <span class="cov4" title="2">nonce := make([]byte, gcm.NonceSize())
+        _, err = rand.Read(nonce)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to generate nonce: %v", err)
+        }</span>
+        <span class="cov4" title="2">s.Meta = gcm.Seal(nonce, nonce, metaBytes, nil)
+        _, err = rand.Read(nonce)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to generate nonce: %v", err)
+        }</span>
+        <span class="cov4" title="2">s.Data = gcm.Seal(nonce, nonce, data, nil)
+        return s, nil</span>
+}
+
+func MakeSecret(id, newID string, cryptBytes, meta, data []byte, createdAt, updatedAt time.Time,
+        privateKey *rsa.PrivateKey) (*Secret, error) <span class="cov4" title="2">{
+        s := &amp;Secret{
+                ID:        ID(id),
+                NewID:     ID(newID),
+                Crypt:     cryptBytes,
+                Meta:      meta,
+                Data:      data,
+                CreatedAt: createdAt,
+                UpdatedAt: updatedAt,
+                Status:    StatusSynced,
+        }
+        metaBytes, err := crypt.Decrypt(privateKey, s.Crypt, s.Meta)
+        if err != nil </span><span class="cov1" title="1">{
+                return nil, fmt.Errorf("failed to decrypt meta: %w", err)
+        }</span>
+        <span class="cov1" title="1">s.DecryptMeta, s.Type, err = UnmarshalMetaAndType(metaBytes)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to unmarshal meta and type: %w", err)
+        }</span>
+        <span class="cov1" title="1">return s, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package service
+
+import (
+        "crypto/rsa"
+        "crypto/x509"
+        "fmt"
+        "gophkeeper/pkg/crypt"
+)
+
+type Key struct {
+        UserID         int64
+        PrivateKey     *rsa.PrivateKey
+        PublicKeyBytes []byte
+        Hash           []byte
+        Fingerprint    string
+}
+
+func NewKey() *Key <span class="cov10" title="16">{
+        return &amp;Key{}
+}</span>
+
+func (s *Key) SetPrivateKeyFromPath(privateKeyPath string) error <span class="cov0" title="0">{
+        privateKey, err := crypt.ParsePrivateKey(privateKeyPath)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to parse private key: %w", err)
+        }</span>
+        <span class="cov0" title="0">return s.SetPrivateKey(privateKey)</span>
+}
+
+func (s *Key) SetPrivateKey(privateKey *rsa.PrivateKey) error <span class="cov9" title="13">{
+        publicKeyBytes, err := x509.MarshalPKIXPublicKey(&amp;privateKey.PublicKey)
+        if err != nil </span><span class="cov1" title="1">{
+                return fmt.Errorf("failed to marshal public key: %v", err)
+        }</span>
+        <span class="cov9" title="12">s.PrivateKey = privateKey
+        s.PublicKeyBytes = publicKeyBytes
+        s.Hash = crypt.PublicKeyHash(s.PublicKeyBytes)
+        s.Fingerprint = crypt.FingerprintFromHash(s.Hash)
+        return nil</span>
+}
+
+func (s *Key) SetUserID(userID int64) <span class="cov1" title="1">{
+        s.UserID = userID
+}</span>
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package service
+
+import (
+        "fmt"
+        "gophkeeper/internal/client/model"
+        "sort"
+        "sync"
+        "time"
+)
+
+type MemStore struct {
+        store  map[model.ID]*model.Secret
+        mutex  sync.Mutex
+        SyncCh chan struct{}
+}
+
+func NewMemStore() *MemStore <span class="cov10" title="22">{
+        return &amp;MemStore{
+                store:  make(map[model.ID]*model.Secret),
+                SyncCh: make(chan struct{}, 1),
+        }
+}</span>
+
+func (ms *MemStore) Store(secret *model.Secret) error <span class="cov9" title="16">{
+        ms.mutex.Lock()
+        defer ms.mutex.Unlock()
+        if existing, ok := ms.store[secret.ID]; ok </span><span class="cov3" title="2">{
+                secret.CreatedAt = existing.CreatedAt
+                if existing.Status == model.StatusNew </span><span class="cov3" title="2">{
+                        if secret.ID != secret.NewID </span><span class="cov1" title="1">{
+                                delete(ms.store, secret.ID)
+                                secret.ID = secret.NewID
+                                if existing, ok = ms.store[secret.ID]; ok &amp;&amp; existing.Status != model.StatusNew </span><span class="cov0" title="0">{
+                                        secret.Status = model.StatusUpdating
+                                }</span>
+                        }
+                } else<span class="cov0" title="0"> {
+                        secret.Status = model.StatusUpdating
+                }</span>
+        }
+        <span class="cov9" title="16">ms.store[secret.ID] = secret
+        ms.sync()
+        return nil</span>
+}
+
+func (ms *MemStore) SyncStore(secret *model.Secret) error <span class="cov4" title="3">{
+        ms.mutex.Lock()
+        defer ms.mutex.Unlock()
+        existing, existsOld := ms.store[secret.ID]
+        if existsOld </span><span class="cov3" title="2">{
+                if secret.UpdatedAt.Unix() &lt; existing.UpdatedAt.Unix() </span><span class="cov1" title="1">{
+                        return fmt.Errorf("conflict: %v &lt; %v", secret.UpdatedAt, existing.UpdatedAt)
+                }</span>
+        }
+        <span class="cov3" title="2">if secret.ID != secret.NewID </span><span class="cov1" title="1">{
+                if existingNew, ok := ms.store[secret.NewID]; ok </span><span class="cov0" title="0">{
+                        if secret.UpdatedAt.Unix() &lt; existingNew.UpdatedAt.Unix() </span><span class="cov0" title="0">{
+                                return fmt.Errorf("conflict: %v &lt; %v", secret.UpdatedAt, existingNew.UpdatedAt)
+                        }</span>
+                }
+                <span class="cov1" title="1">if existsOld </span><span class="cov1" title="1">{
+                        delete(ms.store, secret.ID)
+                }</span>
+                <span class="cov1" title="1">secret.ID = secret.NewID</span>
+        }
+        <span class="cov3" title="2">ms.store[secret.ID] = secret
+        return nil</span>
+}
+
+func (ms *MemStore) Get(id model.ID) *model.Secret <span class="cov8" title="14">{
+        ms.mutex.Lock()
+        defer ms.mutex.Unlock()
+        secret, exists := ms.store[id]
+        if !exists </span><span class="cov3" title="2">{
+                return nil
+        }</span>
+        <span class="cov8" title="12">return secret.Clone()</span>
+}
+
+func (ms *MemStore) Deleting(id model.ID) <span class="cov5" title="5">{
+        ms.mutex.Lock()
+        defer ms.mutex.Unlock()
+        if _, ok := ms.store[id]; !ok </span><span class="cov1" title="1">{
+                return
+        }</span>
+        <span class="cov5" title="4">if ms.store[id].Status == model.StatusNew </span><span class="cov3" title="2">{
+                delete(ms.store, id)
+                return
+        }</span>
+        <span class="cov3" title="2">ms.store[id].Status = model.StatusDeleting
+        ms.store[id].UpdatedAt = model.NowTime()
+        ms.sync()</span>
+}
+
+func (ms *MemStore) Delete(id model.ID, eventTime time.Time) error <span class="cov4" title="3">{
+        ms.mutex.Lock()
+        defer ms.mutex.Unlock()
+        if _, ok := ms.store[id]; !ok </span><span class="cov1" title="1">{
+                return nil
+        }</span>
+        <span class="cov3" title="2">if eventTime.Unix() &lt; ms.store[id].UpdatedAt.Unix() </span><span class="cov1" title="1">{
+                return fmt.Errorf("conflict: %v &lt; %v", eventTime, ms.store[id].UpdatedAt)
+        }</span>
+        <span class="cov1" title="1">delete(ms.store, id)
+        return nil</span>
+}
+
+func (ms *MemStore) List() []*model.Secret <span class="cov3" title="2">{
+        ms.mutex.Lock()
+        defer ms.mutex.Unlock()
+        secrets := make([]*model.Secret, 0, len(ms.store))
+        for id := range ms.store </span><span class="cov5" title="4">{
+                secrets = append(secrets, ms.store[id].Clone())
+        }</span>
+        <span class="cov3" title="2">sort.Slice(secrets, func(i, j int) bool </span><span class="cov3" title="2">{
+                return secrets[i].UpdatedAt.After(secrets[j].UpdatedAt)
+        }</span>)
+        <span class="cov3" title="2">return secrets</span>
+}
+
+func (ms *MemStore) Clear() <span class="cov3" title="2">{
+        ms.mutex.Lock()
+        defer ms.mutex.Unlock()
+        ms.store = make(map[model.ID]*model.Secret)
+}</span>
+
+func (ms *MemStore) sync() <span class="cov9" title="18">{
+        select </span>{
+        case ms.SyncCh &lt;- struct{}{}:<span class="cov6" title="7"></span>
+        default:<span class="cov7" title="11"></span>
+        }
+}
+
+func (ms *MemStore) ListForSync() []*model.Secret <span class="cov1" title="1">{
+        ms.mutex.Lock()
+        defer ms.mutex.Unlock()
+        secrets := make([]*model.Secret, 0, len(ms.store))
+        for id := range ms.store </span><span class="cov4" title="3">{
+                if ms.store[id].Status == model.StatusSynced </span><span class="cov1" title="1">{
+                        continue</span>
+                }
+                <span class="cov3" title="2">secrets = append(secrets, ms.store[id].Clone())</span>
+        }
+        <span class="cov1" title="1">sort.Slice(secrets, func(i, j int) bool </span><span class="cov1" title="1">{
+                return secrets[i].UpdatedAt.Before(secrets[j].UpdatedAt)
+        }</span>)
+        <span class="cov1" title="1">return secrets</span>
+}
+
+func (ms *MemStore) Close() <span class="cov1" title="1">{
+        close(ms.SyncCh)
+}</span>
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package service
+
+import (
+        "encoding/json"
+        "fmt"
+        "gophkeeper/internal/client/model"
+        "gophkeeper/pkg/crypt"
+)
+
+type Storage struct {
+        key *Key
+        m   *MemStore
+}
+
+func NewStorage(key *Key, m *MemStore) *Storage <span class="cov10" title="11">{
+        return &amp;Storage{
+                key: key,
+                m:   m,
+        }
+}</span>
+
+func (s *Storage) List() []*model.Secret <span class="cov1" title="1">{
+        return s.m.List()
+}</span>
+
+func (s *Storage) save(id, newID model.ID, meta model.Meta, dataModel any) error <span class="cov5" title="3">{
+        data, err := json.Marshal(dataModel)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to marshal data: %w", err)
+        }</span>
+        <span class="cov5" title="3">var typ model.Type
+        switch dataModel.(type) </span>{
+        case model.DataText:<span class="cov1" title="1">
+                typ = model.TypeText</span>
+        case model.DataLoginPass:<span class="cov1" title="1">
+                typ = model.TypeLoginPass</span>
+        case model.DataCard:<span class="cov1" title="1">
+                typ = model.TypeCard</span>
+        default:<span class="cov0" title="0">
+                return fmt.Errorf("unknown data type: %T", dataModel)</span>
+        }
+        <span class="cov5" title="3">if id == "" </span><span class="cov0" title="0">{
+                id = newID
+        }</span>
+        <span class="cov5" title="3">secret, err := model.NewSecret(id, newID, typ, meta, data, &amp;s.key.PrivateKey.PublicKey)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to create secret: %w", err)
+        }</span>
+        <span class="cov5" title="3">err = s.m.Store(secret)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to store secret: %w", err)
+        }</span>
+        <span class="cov5" title="3">return nil</span>
+}
+
+func (s *Storage) SaveText(id, newID model.ID, meta model.Meta, text string) error <span class="cov1" title="1">{
+        return s.save(id, newID, meta, model.DataText{Text: text})
+}</span>
+
+func (s *Storage) SaveLoginPass(id, newID model.ID, meta model.Meta, login, pass string) error <span class="cov1" title="1">{
+        return s.save(id, newID, meta, model.DataLoginPass{Login: login, Pass: pass})
+}</span>
+
+func (s *Storage) SaveCard(id, newID model.ID, meta model.Meta, ccn, expire, cvv string) error <span class="cov1" title="1">{
+        return s.save(id, newID, meta, model.DataCard{CCN: ccn, Expire: expire, CVV: cvv})
+}</span>
+
+func (s *Storage) DataText(secret model.Secret) (model.DataText, model.Meta, error) <span class="cov5" title="3">{
+        return decryptSecret[model.DataText](s, secret)
+}</span>
+
+func (s *Storage) DataLoginPass(secret model.Secret) (model.DataLoginPass, model.Meta, error) <span class="cov5" title="3">{
+        return decryptSecret[model.DataLoginPass](s, secret)
+}</span>
+
+func (s *Storage) DataCard(secret model.Secret) (model.DataCard, model.Meta, error) <span class="cov5" title="3">{
+        return decryptSecret[model.DataCard](s, secret)
+}</span>
+
+func decryptSecret[T any](s *Storage, secret model.Secret) (T, model.Meta, error) <span class="cov9" title="9">{
+        var data T
+        decryptData, err := crypt.Decrypt(s.key.PrivateKey, secret.Crypt, secret.Data)
+        if err != nil </span><span class="cov5" title="3">{
+                return data, model.Meta{}, fmt.Errorf("failed to decrypt data: %w", err)
+        }</span>
+        <span class="cov7" title="6">err = json.Unmarshal(decryptData, &amp;data)
+        if err != nil </span><span class="cov0" title="0">{
+                return data, model.Meta{}, fmt.Errorf("failed to unmarshal data: %w", err)
+        }</span>
+        <span class="cov7" title="6">return data, secret.DecryptMeta, nil</span>
+}
+
+func (s *Storage) Get(id model.ID) (*model.Secret, error) <span class="cov3" title="2">{
+        secret := s.m.Get(id)
+        if secret == nil </span><span class="cov1" title="1">{
+                return nil, fmt.Errorf("secret not found %v", id)
+        }</span>
+        <span class="cov1" title="1">return secret, nil</span>
+}
+
+func (s *Storage) Delete(id model.ID) <span class="cov3" title="2">{
+        s.m.Deleting(id)
+}</span>
+
+func (s *Storage) Clear() <span class="cov1" title="1">{
+        s.m.Clear()
+}</span>
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package service
+
+import "time"
+
+type Time struct {
+        diff time.Duration
+}
+
+func NewTime() *Time <span class="cov7" title="6">{
+        return &amp;Time{}
+}</span>
+
+func (s *Time) SetDiff(diff time.Duration) <span class="cov10" title="13">{
+        s.diff = diff.Truncate(time.Second)
+}</span>
+
+func (s *Time) ServerNow() time.Time <span class="cov1" title="1">{
+        return s.Server(time.Now().Truncate(time.Second))
+}</span>
+
+func (s *Time) Server(local time.Time) time.Time <span class="cov5" title="4">{
+        return local.Add(s.diff)
+}</span>
+
+func (s *Time) Local(server time.Time) time.Time <span class="cov7" title="6">{
+        return server.Add(-s.diff)
+}</span>
+
+func (s *Time) LocalFromUnix(sec int64) time.Time <span class="cov4" title="3">{
+        return s.Local(time.Unix(sec, 0))
+}</span>
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package auth
+
+import (
+        "gophkeeper/internal/server/service"
+        "gophkeeper/pkg/proto"
+)
+
+// ServiceServer реализует gRPC AuthServiceServer.
+type ServiceServer struct {
+        proto.UnimplementedAuthServiceServer
+        registerUserFunc service.RegisterUserFunc
+        findUserFunc     service.FindUserByFingerprintFunc
+        // timeWindow временное окно в секундах для предотвращения атак повторного воспроизведения
+        timeWindow int64
+}
+
+// defaultTimeWindow временное окно по умолчанию.
+const defaultTimeWindow = 600
+
+// NewServiceServer создаёт новый ServiceServer.
+func NewServiceServer(opts ...Option) *ServiceServer <span class="cov9" title="20">{
+        s := &amp;ServiceServer{
+                timeWindow: defaultTimeWindow,
+        }
+        for _, opt := range opts </span><span class="cov10" title="21">{
+                opt(s)
+        }</span>
+        <span class="cov9" title="20">return s</span>
+}
+
+// Option опция для конфигурации ServiceServer.
+type Option func(*ServiceServer)
+
+// WithTimeWindow устанавливает временное окно.
+func WithTimeWindow(tw int64) Option <span class="cov1" title="1">{
+        return func(s *ServiceServer) </span><span class="cov1" title="1">{
+                s.timeWindow = tw
+        }</span>
+}
+
+// WithRegisterUserFunc устанавливает функцию регистрации пользователя.
+func WithRegisterUserFunc(fn service.RegisterUserFunc) Option <span class="cov7" title="10">{
+        return func(s *ServiceServer) </span><span class="cov7" title="10">{
+                s.registerUserFunc = fn
+        }</span>
+}
+
+// WithFindUserFunc устанавливает функцию поиска пользователя.
+func WithFindUserFunc(fn service.FindUserByFingerprintFunc) Option <span class="cov7" title="10">{
+        return func(s *ServiceServer) </span><span class="cov7" title="10">{
+                s.findUserFunc = fn
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package auth
+
+import (
+        "context"
+        "errors"
+        "fmt"
+        "gophkeeper/internal/server/service"
+        "gophkeeper/pkg/crypt"
+        "gophkeeper/pkg/proto"
+        "time"
+
+        "google.golang.org/grpc/codes"
+        "google.golang.org/grpc/status"
+        "google.golang.org/protobuf/types/known/timestamppb"
+)
+
+// Login проверяет подпись пользователя.
+func (s *ServiceServer) Login(ctx context.Context, req *proto.LoginRequest) (*proto.AuthResponse, error) <span class="cov10" title="9">{
+        startTime := timestamppb.Now()
+        if req.Fingerprint == "" </span><span class="cov1" title="1">{
+                return nil, status.Error(codes.InvalidArgument, "Fingerprint is required")
+        }</span>
+        <span class="cov9" title="8">if len(req.Signature) == 0 </span><span class="cov1" title="1">{
+                return nil, status.Error(codes.InvalidArgument, "Signature is required")
+        }</span>
+        <span class="cov8" title="7">currentTime := time.Now().Unix()
+        if req.Timestamp &lt; currentTime-s.timeWindow || req.Timestamp &gt; currentTime+s.timeWindow </span><span class="cov3" title="2">{
+                return nil, status.Error(codes.InvalidArgument, "Timestamp is out of range")
+        }</span>
+        <span class="cov7" title="5">user, err := s.findUserFunc(ctx, req.Fingerprint)
+        if err != nil </span><span class="cov3" title="2">{
+                if errors.Is(err, service.ErrNotFound) </span><span class="cov1" title="1">{
+                        return nil, status.Error(codes.NotFound, "user not found")
+                }</span>
+                <span class="cov1" title="1">return nil, status.Error(codes.Internal, fmt.Errorf("failed to get user by fingerprint: %w", err).Error())</span>
+        }
+        <span class="cov5" title="3">rsaPublicKey, err := crypt.RSAPublicKeyFromBytes(user.PublicKeyBytes)
+        if err != nil </span><span class="cov1" title="1">{
+                return nil, status.Error(codes.InvalidArgument, fmt.Errorf("failed to parse public key: %w", err).Error())
+        }</span>
+        <span class="cov3" title="2">if !crypt.VerifyPSSWithTimestamp(rsaPublicKey, req.Signature, req.Timestamp, user.PublicKeyBytes) </span><span class="cov1" title="1">{
+                return nil, status.Error(codes.InvalidArgument, "invalid signature")
+        }</span>
+        <span class="cov1" title="1">return &amp;proto.AuthResponse{
+                UserId:    user.ID,
+                StartTime: startTime,
+                EndTime:   timestamppb.Now(),
+        }, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package auth
+
+import (
+        "context"
+        "errors"
+        "fmt"
+        "gophkeeper/internal/server/service"
+        "gophkeeper/pkg/crypt"
+        "gophkeeper/pkg/proto"
+        "time"
+
+        "google.golang.org/grpc/codes"
+        "google.golang.org/grpc/status"
+        "google.golang.org/protobuf/types/known/timestamppb"
+)
+
+// Register регистрирует нового пользователя по публичному ключу.
+func (s *ServiceServer) Register(ctx context.Context, req *proto.RegisterRequest) (*proto.AuthResponse, error) <span class="cov10" title="9">{
+        startTime := timestamppb.Now()
+        if len(req.PublicKeyBytes) == 0 </span><span class="cov1" title="1">{
+                return nil, status.Error(codes.InvalidArgument, "PublicKey is required")
+        }</span>
+        <span class="cov9" title="8">if len(req.Signature) == 0 </span><span class="cov1" title="1">{
+                return nil, status.Error(codes.InvalidArgument, "Signature is required")
+        }</span>
+        <span class="cov8" title="7">currentTime := time.Now().Unix()
+        if req.Timestamp &lt; currentTime-s.timeWindow || req.Timestamp &gt; currentTime+s.timeWindow </span><span class="cov3" title="2">{
+                return nil, status.Error(codes.InvalidArgument, "Timestamp is out of range")
+        }</span>
+        <span class="cov7" title="5">rsaPublicKey, err := crypt.RSAPublicKeyFromBytes(req.PublicKeyBytes)
+        if err != nil </span><span class="cov1" title="1">{
+                return nil, status.Error(codes.InvalidArgument, fmt.Errorf("failed to parse public key: %w", err).Error())
+        }</span>
+        <span class="cov6" title="4">if !crypt.VerifyPSSWithTimestamp(rsaPublicKey, req.Signature, req.Timestamp, req.PublicKeyBytes) </span><span class="cov1" title="1">{
+                return nil, status.Error(codes.InvalidArgument, "invalid signature")
+        }</span>
+        <span class="cov5" title="3">userID, err := s.registerUserFunc(ctx, req.PublicKeyBytes)
+        if err != nil </span><span class="cov3" title="2">{
+                if errors.Is(err, service.ErrConflict) </span><span class="cov1" title="1">{
+                        return nil, status.Error(codes.AlreadyExists, err.Error())
+                }</span>
+                <span class="cov1" title="1">return nil, status.Error(codes.Internal, fmt.Errorf("failed to register: %w", err).Error())</span>
+        }
+        <span class="cov1" title="1">return &amp;proto.AuthResponse{
+                UserId:    userID,
+                StartTime: startTime,
+                EndTime:   timestamppb.Now(),
+        }, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file9" style="display: none">package db
+
+import (
+        "context"
+        "database/sql"
+        "fmt"
+        "time"
+
+        _ "github.com/jackc/pgx/v5/stdlib"
+)
+
+func connect(ctx context.Context, dsn string) (*sql.DB, error) <span class="cov0" title="0">{
+        db, err := sql.Open("pgx", dsn)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to open database: %w", err)
+        }</span>
+        <span class="cov0" title="0">db.SetMaxOpenConns(5)
+        db.SetMaxIdleConns(5)
+        db.SetConnMaxIdleTime(time.Minute)
+        db.SetConnMaxLifetime(time.Minute)
+
+        if err = db.PingContext(ctx); err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to ping database: %w", err)
+        }</span>
+        <span class="cov0" title="0">return db, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file10" style="display: none">package db
+
+import (
+        "embed"
+        "errors"
+        "fmt"
+
+        "github.com/golang-migrate/migrate/v4"
+        _ "github.com/golang-migrate/migrate/v4/database/postgres"
+        _ "github.com/golang-migrate/migrate/v4/source/file"
+        "github.com/golang-migrate/migrate/v4/source/iofs"
+)
+
+//go:embed migrations/*.sql
+var embedSQL embed.FS
+
+func runMigrate(dsn string) error <span class="cov0" title="0">{
+        d, err := iofs.New(embedSQL, "migrations")
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to return an iofs driver: %w", err)
+        }</span>
+        <span class="cov0" title="0">m, err := migrate.NewWithSourceInstance("iofs", d, dsn)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to get a new migrate instance: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">if err := m.Up(); err != nil </span><span class="cov0" title="0">{
+                if !errors.Is(err, migrate.ErrNoChange) </span><span class="cov0" title="0">{
+                        return fmt.Errorf("failed migrate: %w", err)
+                }</span>
+        }
+        <span class="cov0" title="0">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file11" style="display: none">// Code generated by sqlc. DO NOT EDIT.
+// versions:
+//   sqlc v1.28.0
+
+package query
+
+import (
+        "context"
+        "database/sql"
+)
+
+type DBTX interface {
+        ExecContext(context.Context, string, ...interface{}) (sql.Result, error)
+        PrepareContext(context.Context, string) (*sql.Stmt, error)
+        QueryContext(context.Context, string, ...interface{}) (*sql.Rows, error)
+        QueryRowContext(context.Context, string, ...interface{}) *sql.Row
+}
+
+func New(db DBTX) *Queries <span class="cov10" title="12">{
+        return &amp;Queries{db: db}
+}</span>
+
+type Queries struct {
+        db DBTX
+}
+
+func (q *Queries) WithTx(tx *sql.Tx) *Queries <span class="cov1" title="1">{
+        return &amp;Queries{
+                db: tx,
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file12" style="display: none">// Code generated by sqlc. DO NOT EDIT.
+// versions:
+//   sqlc v1.28.0
+// source: secrets.sql
+
+package query
+
+import (
+        "context"
+        "time"
+)
+
+const createSecret = `-- name: CreateSecret :one
+INSERT INTO secrets (id, user_id, crypt, meta, data, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5, $6, $6)
+ON CONFLICT (id, user_id) DO UPDATE SET crypt = excluded.crypt, meta = excluded.meta, data = excluded.data, updated_at = excluded.updated_at WHERE secrets.updated_at &lt;= excluded.updated_at
+RETURNING id, user_id, crypt, meta, data, created_at, updated_at
+`
+
+type CreateSecretParams struct {
+        ID        string
+        UserID    int64
+        Crypt     []byte
+        Meta      []byte
+        Data      []byte
+        CreatedAt time.Time
+}
+
+func (q *Queries) CreateSecret(ctx context.Context, arg CreateSecretParams) (Secret, error) <span class="cov1" title="1">{
+        row := q.db.QueryRowContext(ctx, createSecret,
+                arg.ID,
+                arg.UserID,
+                arg.Crypt,
+                arg.Meta,
+                arg.Data,
+                arg.CreatedAt,
+        )
+        var i Secret
+        err := row.Scan(
+                &amp;i.ID,
+                &amp;i.UserID,
+                &amp;i.Crypt,
+                &amp;i.Meta,
+                &amp;i.Data,
+                &amp;i.CreatedAt,
+                &amp;i.UpdatedAt,
+        )
+        return i, err
+}</span>
+
+const deleteSecret = `-- name: DeleteSecret :one
+DELETE FROM secrets WHERE id=$1 AND user_id=$2 AND updated_at &lt;= $3
+RETURNING id, user_id, crypt, meta, data, created_at, updated_at
+`
+
+type DeleteSecretParams struct {
+        ID        string
+        UserID    int64
+        UpdatedAt time.Time
+}
+
+func (q *Queries) DeleteSecret(ctx context.Context, arg DeleteSecretParams) (Secret, error) <span class="cov1" title="1">{
+        row := q.db.QueryRowContext(ctx, deleteSecret, arg.ID, arg.UserID, arg.UpdatedAt)
+        var i Secret
+        err := row.Scan(
+                &amp;i.ID,
+                &amp;i.UserID,
+                &amp;i.Crypt,
+                &amp;i.Meta,
+                &amp;i.Data,
+                &amp;i.CreatedAt,
+                &amp;i.UpdatedAt,
+        )
+        return i, err
+}</span>
+
+const findSecret = `-- name: FindSecret :one
+SELECT id, user_id, crypt, meta, data, created_at, updated_at FROM secrets WHERE id=$1 AND user_id=$2 LIMIT 1
+`
+
+type FindSecretParams struct {
+        ID     string
+        UserID int64
+}
+
+func (q *Queries) FindSecret(ctx context.Context, arg FindSecretParams) (Secret, error) <span class="cov1" title="1">{
+        row := q.db.QueryRowContext(ctx, findSecret, arg.ID, arg.UserID)
+        var i Secret
+        err := row.Scan(
+                &amp;i.ID,
+                &amp;i.UserID,
+                &amp;i.Crypt,
+                &amp;i.Meta,
+                &amp;i.Data,
+                &amp;i.CreatedAt,
+                &amp;i.UpdatedAt,
+        )
+        return i, err
+}</span>
+
+const listSecrets = `-- name: ListSecrets :many
+SELECT id, user_id, crypt, meta, data, created_at, updated_at FROM secrets WHERE user_id=$1
+`
+
+func (q *Queries) ListSecrets(ctx context.Context, userID int64) ([]Secret, error) <span class="cov1" title="1">{
+        rows, err := q.db.QueryContext(ctx, listSecrets, userID)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov1" title="1">defer rows.Close()
+        var items []Secret
+        for rows.Next() </span><span class="cov10" title="2">{
+                var i Secret
+                if err := rows.Scan(
+                        &amp;i.ID,
+                        &amp;i.UserID,
+                        &amp;i.Crypt,
+                        &amp;i.Meta,
+                        &amp;i.Data,
+                        &amp;i.CreatedAt,
+                        &amp;i.UpdatedAt,
+                ); err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+                <span class="cov10" title="2">items = append(items, i)</span>
+        }
+        <span class="cov1" title="1">if err := rows.Close(); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov1" title="1">if err := rows.Err(); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov1" title="1">return items, nil</span>
+}
+
+const updateSecret = `-- name: UpdateSecret :one
+UPDATE secrets
+SET id=$1, crypt=$2, meta=$3, data=$4, updated_at=$5
+WHERE id=$6 AND user_id=$7 AND updated_at &lt;= $5
+RETURNING id, user_id, crypt, meta, data, created_at, updated_at
+`
+
+type UpdateSecretParams struct {
+        ID        string
+        Crypt     []byte
+        Meta      []byte
+        Data      []byte
+        UpdatedAt time.Time
+        ID_2      string
+        UserID    int64
+}
+
+func (q *Queries) UpdateSecret(ctx context.Context, arg UpdateSecretParams) (Secret, error) <span class="cov1" title="1">{
+        row := q.db.QueryRowContext(ctx, updateSecret,
+                arg.ID,
+                arg.Crypt,
+                arg.Meta,
+                arg.Data,
+                arg.UpdatedAt,
+                arg.ID_2,
+                arg.UserID,
+        )
+        var i Secret
+        err := row.Scan(
+                &amp;i.ID,
+                &amp;i.UserID,
+                &amp;i.Crypt,
+                &amp;i.Meta,
+                &amp;i.Data,
+                &amp;i.CreatedAt,
+                &amp;i.UpdatedAt,
+        )
+        return i, err
+}</span>
+</pre>
+		
+		<pre class="file" id="file13" style="display: none">// Code generated by sqlc. DO NOT EDIT.
+// versions:
+//   sqlc v1.28.0
+// source: users.sql
+
+package query
+
+import (
+        "context"
+        "time"
+)
+
+const createUser = `-- name: CreateUser :one
+INSERT INTO users (fingerprint, public_key, created_at, updated_at)
+VALUES ($1, $2, $3, $3)
+RETURNING id
+`
+
+type CreateUserParams struct {
+        Fingerprint string
+        PublicKey   string
+        CreatedAt   time.Time
+}
+
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (int64, error) <span class="cov1" title="1">{
+        row := q.db.QueryRowContext(ctx, createUser, arg.Fingerprint, arg.PublicKey, arg.CreatedAt)
+        var id int64
+        err := row.Scan(&amp;id)
+        return id, err
+}</span>
+
+const deleteUser = `-- name: DeleteUser :exec
+DELETE FROM users WHERE id = $1
+`
+
+func (q *Queries) DeleteUser(ctx context.Context, id int64) error <span class="cov1" title="1">{
+        _, err := q.db.ExecContext(ctx, deleteUser, id)
+        return err
+}</span>
+
+const getUserByFingerprint = `-- name: GetUserByFingerprint :one
+SELECT id, fingerprint, public_key, created_at, updated_at FROM users WHERE fingerprint=$1 LIMIT 1
+`
+
+func (q *Queries) GetUserByFingerprint(ctx context.Context, fingerprint string) (User, error) <span class="cov10" title="2">{
+        row := q.db.QueryRowContext(ctx, getUserByFingerprint, fingerprint)
+        var i User
+        err := row.Scan(
+                &amp;i.ID,
+                &amp;i.Fingerprint,
+                &amp;i.PublicKey,
+                &amp;i.CreatedAt,
+                &amp;i.UpdatedAt,
+        )
+        return i, err
+}</span>
+
+const getUserById = `-- name: GetUserById :one
+SELECT id, fingerprint, public_key, created_at, updated_at FROM users WHERE id=$1 LIMIT 1
+`
+
+func (q *Queries) GetUserById(ctx context.Context, id int64) (User, error) <span class="cov1" title="1">{
+        row := q.db.QueryRowContext(ctx, getUserById, id)
+        var i User
+        err := row.Scan(
+                &amp;i.ID,
+                &amp;i.Fingerprint,
+                &amp;i.PublicKey,
+                &amp;i.CreatedAt,
+                &amp;i.UpdatedAt,
+        )
+        return i, err
+}</span>
+
+const updateUser = `-- name: UpdateUser :exec
+UPDATE users
+SET fingerprint=$1, public_key = $2, updated_at = $3
+WHERE id = $4
+`
+
+type UpdateUserParams struct {
+        Fingerprint string
+        PublicKey   string
+        UpdatedAt   time.Time
+        ID          int64
+}
+
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error <span class="cov1" title="1">{
+        _, err := q.db.ExecContext(ctx, updateUser,
+                arg.Fingerprint,
+                arg.PublicKey,
+                arg.UpdatedAt,
+                arg.ID,
+        )
+        return err
+}</span>
+</pre>
+		
+		<pre class="file" id="file14" style="display: none">package db
+
+import (
+        "context"
+        "database/sql"
+        "fmt"
+        "gophkeeper/internal/server/infra/db/query"
+)
+
+type Store struct {
+        *query.Queries
+        db *sql.DB
+}
+
+func newStore(db *sql.DB) *Store <span class="cov10" title="5">{
+        return &amp;Store{
+                db:      db,
+                Queries: query.New(db),
+        }
+}</span>
+
+func (s *Store) Close() error <span class="cov10" title="5">{
+        return s.db.Close()
+}</span>
+
+func MakeStoreConnectAndMigrate(ctx context.Context, dsn string) (*Store, error) <span class="cov0" title="0">{
+        if err := runMigrate(dsn); err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to migrate database: %w", err)
+        }</span>
+        <span class="cov0" title="0">dbConnect, err := connect(ctx, dsn)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to connect to database: %w", err)
+        }</span>
+        <span class="cov0" title="0">return newStore(dbConnect), nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file15" style="display: none">package logger
+
+import (
+        "context"
+        "gophkeeper/pkg/logging"
+
+        "go.uber.org/zap"
+        "google.golang.org/grpc"
+)
+
+func Interceptor(l *logging.ZapLogger) func(ctx context.Context, req interface{},
+        info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) <span class="cov10" title="2">{
+        return func(ctx context.Context, req interface{},
+                info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) </span><span class="cov10" title="2">{
+                resp, err = handler(ctx, req)
+                f := []zap.Field{
+                        zap.String("method", info.FullMethod),
+                }
+                if err != nil </span><span class="cov1" title="1">{
+                        f = append(f, zap.Error(err))
+                }</span>
+                <span class="cov10" title="2">l.InfoCtx(ctx, "gRPC request", f...)
+                return resp, err</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file16" style="display: none">package secret
+
+import (
+        "context"
+        "errors"
+        "fmt"
+        "gophkeeper/internal/server/service"
+        "gophkeeper/pkg/crypt"
+        "gophkeeper/pkg/proto"
+        "time"
+
+        "google.golang.org/grpc/codes"
+        "google.golang.org/grpc/status"
+)
+
+// findAndAuthUser checks if the user exists and if the signature is valid
+func (s *ServiceServer) findAndAuthUser(ctx context.Context, req *proto.Auth, data ...[]byte) (*service.User, error) <span class="cov10" title="31">{
+        if len(req.Signature) == 0 </span><span class="cov4" title="4">{
+                return nil, status.Error(codes.InvalidArgument, "Signature is required")
+        }</span>
+        <span class="cov9" title="27">currentTime := time.Now().Unix()
+        if req.Timestamp &lt; currentTime-s.timeWindow || req.Timestamp &gt; currentTime+s.timeWindow </span><span class="cov2" title="2">{
+                return nil, status.Error(codes.InvalidArgument, "Timestamp is out of range")
+        }</span>
+        <span class="cov9" title="25">user, err := s.findUserFunc(ctx, req.UserId)
+        if err != nil </span><span class="cov5" title="5">{
+                if errors.Is(err, service.ErrNotFound) </span><span class="cov4" title="4">{
+                        return nil, status.Error(codes.NotFound, "user not found")
+                }</span>
+                <span class="cov1" title="1">return nil, status.Error(codes.Internal, fmt.Errorf("failed to find user: %w", err).Error())</span>
+        }
+        <span class="cov8" title="20">publicKey, err := crypt.RSAPublicKeyFromBytes(user.PublicKeyBytes)
+        if err != nil </span><span class="cov1" title="1">{
+                return nil, status.Error(codes.InvalidArgument, fmt.Errorf("failed to parse public key: %w", err).Error())
+        }</span>
+        <span class="cov8" title="19">if !crypt.VerifyPSSWithTimestampAndUserID(publicKey, req.Signature, req.UserId, req.Timestamp,
+                append(data, []byte(req.Id), user.PublicKeyBytes)...) </span><span class="cov4" title="4">{
+                return nil, status.Error(codes.Unauthenticated, "invalid signature")
+        }</span>
+        <span class="cov8" title="15">return user, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file17" style="display: none">package secret
+
+import (
+        "context"
+        "encoding/binary"
+        "errors"
+        "fmt"
+        "gophkeeper/internal/server/service"
+        "gophkeeper/pkg/crypt"
+        "gophkeeper/pkg/proto"
+        "time"
+
+        "google.golang.org/grpc/codes"
+        "google.golang.org/grpc/status"
+)
+
+// Delete удаляет секрет.
+func (s *ServiceServer) Delete(ctx context.Context, req *proto.SecretDeleteRequest) (*proto.Secret, error) <span class="cov10" title="6">{
+        b := make([]byte, crypt.Int64BytesLen)
+        binary.LittleEndian.PutUint64(b, uint64(req.EventTime))
+        user, err := s.findAndAuthUser(ctx, req.Auth, b)
+        if err != nil </span><span class="cov6" title="3">{
+                return nil, err
+        }</span>
+        <span class="cov6" title="3">secret, err := s.deleteSecretFunc(ctx, user.ID, req.Auth.Id, time.Unix(req.EventTime, 0))
+        if err != nil </span><span class="cov4" title="2">{
+                code := codes.Internal
+                if errors.Is(err, service.ErrConflict) </span><span class="cov1" title="1">{
+                        code = codes.FailedPrecondition
+                }</span>
+                <span class="cov4" title="2">return nil, status.Error(code, fmt.Errorf("failed to delete secret: %w", err).Error())</span>
+        }
+        <span class="cov1" title="1">go s.sync.Broadcast(int32(proto.SecretAction_DELETED), req.Auth.Id, *secret)
+        return &amp;proto.Secret{
+                Id:        secret.ID,
+                Crypt:     secret.Crypt,
+                Meta:      secret.Meta,
+                Data:      secret.Data,
+                CreatedAt: secret.CreatedAt.Unix(),
+                UpdatedAt: secret.UpdatedAt.Unix(),
+        }, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file18" style="display: none">package secret
+
+import (
+        "gophkeeper/internal/server/service"
+        "gophkeeper/pkg/proto"
+)
+
+type ServiceServer struct {
+        proto.UnimplementedSecretServiceServer
+        findUserFunc     service.FindUserByIDFunc
+        findSecretFunc   service.FindSecretFunc
+        listSecretsFunc  service.ListSecretsFunc
+        saveSecretFunc   service.SaveSecretFunc
+        deleteSecretFunc service.DeleteSecretFunc
+        sync             *service.SyncService
+        timeWindow       int64
+}
+
+// defaultTimeWindow временное окно по умолчанию.
+const defaultTimeWindow = 60
+
+func NewServiceServer(opts ...Option) *ServiceServer <span class="cov7" title="33">{
+        s := &amp;ServiceServer{
+                timeWindow: defaultTimeWindow,
+        }
+        for _, opt := range opts </span><span class="cov10" title="115">{
+                opt(s)
+        }</span>
+        <span class="cov7" title="33">return s</span>
+}
+
+// Option опция для конфигурации ServiceServer.
+type Option func(*ServiceServer)
+
+// WithTimeWindow устанавливает временное окно.
+func WithTimeWindow(tw int64) Option <span class="cov7" title="32">{
+        return func(s *ServiceServer) </span><span class="cov7" title="32">{
+                s.timeWindow = tw
+        }</span>
+}
+
+// WithFindUserFunc устанавливает функцию поиска пользователя.
+func WithFindUserFunc(fn service.FindUserByIDFunc) Option <span class="cov7" title="32">{
+        return func(s *ServiceServer) </span><span class="cov7" title="32">{
+                s.findUserFunc = fn
+        }</span>
+}
+
+// WithFindSecretFunc устанавливает функцию поиска секрета.
+func WithFindSecretFunc(fn service.FindSecretFunc) Option <span class="cov1" title="1">{
+        return func(s *ServiceServer) </span><span class="cov1" title="1">{
+                s.findSecretFunc = fn
+        }</span>
+}
+
+// WithListSecretsFunc устанавливает функцию получения списка секретов.
+func WithListSecretsFunc(fn service.ListSecretsFunc) Option <span class="cov5" title="11">{
+        return func(s *ServiceServer) </span><span class="cov5" title="11">{
+                s.listSecretsFunc = fn
+        }</span>
+}
+
+// WithSaveSecretFunc устанавливает функцию сохранения секрета.
+func WithSaveSecretFunc(fn service.SaveSecretFunc) Option <span class="cov4" title="8">{
+        return func(s *ServiceServer) </span><span class="cov4" title="8">{
+                s.saveSecretFunc = fn
+        }</span>
+}
+
+// WithDeleteSecretFunc устанавливает функцию удаления секрета.
+func WithDeleteSecretFunc(fn service.DeleteSecretFunc) Option <span class="cov4" title="7">{
+        return func(s *ServiceServer) </span><span class="cov4" title="7">{
+                s.deleteSecretFunc = fn
+        }</span>
+}
+
+// WithSyncService устанавливает сервис синхронизации.
+func WithSyncService(ss *service.SyncService) Option <span class="cov7" title="24">{
+        return func(s *ServiceServer) </span><span class="cov7" title="24">{
+                s.sync = ss
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file19" style="display: none">package secret
+
+import (
+        "context"
+        "encoding/binary"
+        "errors"
+        "fmt"
+        "gophkeeper/internal/server/service"
+        "gophkeeper/pkg/crypt"
+        "gophkeeper/pkg/proto"
+        "time"
+
+        "google.golang.org/grpc/codes"
+        "google.golang.org/grpc/status"
+)
+
+// Store сохраняет секрет.
+func (s *ServiceServer) Store(ctx context.Context, req *proto.SecretStoreRequest) (*proto.Secret, error) <span class="cov10" title="7">{
+        b := make([]byte, crypt.Int64BytesLen)
+        binary.LittleEndian.PutUint64(b, uint64(req.EventTime))
+        user, err := s.findAndAuthUser(ctx, req.Auth, []byte(req.Id), req.Crypt, req.Meta, req.Data, b)
+        if err != nil </span><span class="cov7" title="4">{
+                return nil, err
+        }</span>
+        <span class="cov6" title="3">secret, err := s.saveSecretFunc(ctx, user.ID, req.Auth.Id,
+                req.Id, req.Crypt, req.Meta, req.Data, time.Unix(req.EventTime, 0))
+        if err != nil </span><span class="cov4" title="2">{
+                code := codes.Internal
+                if errors.Is(err, service.ErrConflict) </span><span class="cov1" title="1">{
+                        code = codes.AlreadyExists
+                }</span>
+                <span class="cov4" title="2">return nil, status.Error(code, fmt.Errorf("failed to store secret %s: %w", req.Auth.Id, err).Error())</span>
+        }
+        <span class="cov1" title="1">go s.sync.Broadcast(int32(proto.SecretAction_STORED), req.Auth.Id, *secret)
+        return &amp;proto.Secret{
+                Id:        secret.ID,
+                Crypt:     secret.Crypt,
+                Meta:      secret.Meta,
+                Data:      secret.Data,
+                CreatedAt: secret.CreatedAt.Unix(),
+                UpdatedAt: secret.UpdatedAt.Unix(),
+        }, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file20" style="display: none">package secret
+
+import (
+        "fmt"
+        "gophkeeper/pkg/proto"
+
+        "google.golang.org/grpc"
+        "google.golang.org/grpc/codes"
+        "google.golang.org/grpc/status"
+)
+
+// Stream возвращает поток секретов.
+func (s *ServiceServer) Stream(req *proto.Auth, stream grpc.ServerStreamingServer[proto.SecretEvent]) error <span class="cov10" title="10">{
+        user, err := s.findAndAuthUser(stream.Context(), req)
+        if err != nil </span><span class="cov3" title="2">{
+                return err
+        }</span>
+        <span class="cov9" title="8">subscriber, err := s.sync.Subscribe(user.ID)
+        if err != nil </span><span class="cov1" title="1">{
+                return status.Error(codes.Internal, fmt.Errorf("failed to subscribe: %w", err).Error())
+        }</span>
+        <span class="cov8" title="7">defer s.sync.Unsubscribe(subscriber)
+        secrets, err := s.listSecretsFunc(stream.Context(), user.ID)
+        if err != nil </span><span class="cov1" title="1">{
+                return status.Error(codes.Internal, fmt.Errorf("failed to list secrets: %w", err).Error())
+        }</span>
+        <span class="cov8" title="6">for _, secret := range secrets </span><span class="cov5" title="3">{
+                if stream.Context().Err() != nil </span><span class="cov1" title="1">{
+                        return status.Error(codes.Aborted, "aborted")
+                }</span>
+                <span class="cov3" title="2">if sendErr := stream.Send(&amp;proto.SecretEvent{
+                        Id:     secret.ID,
+                        Action: proto.SecretAction_LIST,
+                        Secret: &amp;proto.Secret{
+                                Id:        secret.ID,
+                                Crypt:     secret.Crypt,
+                                Meta:      secret.Meta,
+                                Data:      secret.Data,
+                                CreatedAt: secret.CreatedAt.Unix(),
+                                UpdatedAt: secret.UpdatedAt.Unix(),
+                        },
+                }); sendErr != nil </span><span class="cov1" title="1">{
+                        return status.Error(codes.Internal, fmt.Errorf("failed to send secret: %w", sendErr).Error())
+                }</span>
+        }
+        <span class="cov6" title="4">for </span><span class="cov7" title="5">{
+                select </span>{
+                case &lt;-stream.Context().Done():<span class="cov0" title="0">
+                        return nil</span>
+                case data, ok := &lt;-subscriber.C:<span class="cov1" title="1">
+                        if !ok </span><span class="cov0" title="0">{
+                                return nil
+                        }</span>
+                        <span class="cov1" title="1">if sendErr := stream.Send(&amp;proto.SecretEvent{
+                                Id:     data.ID,
+                                Action: proto.SecretAction(data.Action),
+                                Secret: &amp;proto.Secret{
+                                        Id:        data.Secret.ID,
+                                        Crypt:     data.Secret.Crypt,
+                                        Meta:      data.Secret.Meta,
+                                        Data:      data.Secret.Data,
+                                        CreatedAt: data.Secret.CreatedAt.Unix(),
+                                        UpdatedAt: data.Secret.UpdatedAt.Unix(),
+                                },
+                        }); sendErr != nil </span><span class="cov0" title="0">{
+                                return status.Error(codes.Internal, fmt.Errorf("failed to send secret: %w", sendErr).Error())
+                        }</span>
+                }
+        }
+}
+</pre>
+		
+		<pre class="file" id="file21" style="display: none">package service
+
+import (
+        "errors"
+        "fmt"
+        "gophkeeper/internal/server/infra/db/query"
+        "gophkeeper/pkg/crypt"
+        "time"
+)
+
+var (
+        ErrNotFound = errors.New("not found")
+        ErrConflict = errors.New("conflict")
+)
+
+type User struct {
+        ID             int64
+        Fingerprint    string
+        PublicKey      string
+        CreatedAt      time.Time
+        UpdatedAt      time.Time
+        PublicKeyBytes []byte
+}
+
+func newUserFromQueryUser(user query.User) (*User, error) <span class="cov8" title="6">{
+        publicKeyBytes, err := crypt.DecodePublicKey(user.PublicKey)
+        if err != nil </span><span class="cov5" title="3">{
+                return nil, fmt.Errorf("failed to decode public key: %w", err)
+        }</span>
+        <span class="cov5" title="3">return &amp;User{
+                ID:             user.ID,
+                Fingerprint:    user.Fingerprint,
+                PublicKey:      user.PublicKey,
+                CreatedAt:      user.CreatedAt,
+                UpdatedAt:      user.UpdatedAt,
+                PublicKeyBytes: publicKeyBytes,
+        }, nil</span>
+}
+
+type Secret struct {
+        ID        string
+        UserID    int64
+        Crypt     []byte
+        Meta      []byte
+        Data      []byte
+        CreatedAt time.Time
+        UpdatedAt time.Time
+}
+
+func newSecretFromQuerySecret(secret query.Secret) *Secret <span class="cov10" title="8">{
+        return &amp;Secret{
+                ID:        secret.ID,
+                UserID:    secret.UserID,
+                Crypt:     secret.Crypt,
+                Meta:      secret.Meta,
+                Data:      secret.Data,
+                CreatedAt: secret.CreatedAt,
+                UpdatedAt: secret.UpdatedAt,
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file22" style="display: none">package service
+
+import (
+        "context"
+        "database/sql"
+        "errors"
+        "fmt"
+        "gophkeeper/internal/server/infra/db/query"
+        "time"
+)
+
+type DeleteSecretFunc func(ctx context.Context, userID int64, id string, updatedAt time.Time) (*Secret, error)
+
+// NewDeleteSecretFunc returns a function that handles deleting a secret.
+func NewDeleteSecretFunc(deleter secretDeleter) DeleteSecretFunc <span class="cov1" title="1">{
+        return func(ctx context.Context, userID int64, id string, updatedAt time.Time) (*Secret, error) </span><span class="cov10" title="3">{
+                qSecret, err := deleter.DeleteSecret(ctx, query.DeleteSecretParams{
+                        UserID:    userID,
+                        ID:        id,
+                        UpdatedAt: updatedAt.UTC(),
+                })
+                if err != nil </span><span class="cov6" title="2">{
+                        if errors.Is(err, sql.ErrNoRows) </span><span class="cov1" title="1">{
+                                err = ErrConflict
+                        }</span>
+                        <span class="cov6" title="2">return nil, fmt.Errorf("failed to delete: %w", err)</span>
+                }
+                <span class="cov1" title="1">return newSecretFromQuerySecret(qSecret), nil</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file23" style="display: none">package service
+
+import (
+        "context"
+        "database/sql"
+        "errors"
+        "fmt"
+        "gophkeeper/internal/server/infra/db/query"
+)
+
+type FindSecretFunc func(ctx context.Context, userID int64, id string) (*Secret, error)
+
+// NewFindSecretFunc returns a function that handles finding a secret by ID and user ID.
+func NewFindSecretFunc(finder secretFinder) FindSecretFunc <span class="cov1" title="1">{
+        return func(ctx context.Context, userID int64, id string) (*Secret, error) </span><span class="cov10" title="3">{
+                qSecret, err := finder.FindSecret(ctx, query.FindSecretParams{
+                        ID:     id,
+                        UserID: userID,
+                })
+                if err != nil </span><span class="cov6" title="2">{
+                        if errors.Is(err, sql.ErrNoRows) </span><span class="cov1" title="1">{
+                                err = ErrNotFound
+                        }</span>
+                        <span class="cov6" title="2">return nil, fmt.Errorf("failed to find secret %s: %w", id, err)</span>
+                }
+                <span class="cov1" title="1">return newSecretFromQuerySecret(qSecret), nil</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file24" style="display: none">package service
+
+import (
+        "context"
+        "fmt"
+        "gophkeeper/internal/server/infra/db/query"
+)
+
+//go:generate mockgen -source=secret_list.go -destination=mocks/secret_list.go -package=mocks
+
+// secretLister defines the interface for listing secrets for a user.
+type secretLister interface {
+        ListSecrets(ctx context.Context, userID int64) ([]query.Secret, error)
+}
+
+type ListSecretsFunc func(ctx context.Context, userID int64) ([]*Secret, error)
+
+// NewListSecretsFunc returns a function that handles listing secrets for a user.
+func NewListSecretsFunc(lister secretLister) func(ctx context.Context, userID int64) ([]*Secret, error) <span class="cov1" title="1">{
+        return func(ctx context.Context, userID int64) ([]*Secret, error) </span><span class="cov10" title="3">{
+                qSecrets, err := lister.ListSecrets(ctx, userID)
+                if err != nil </span><span class="cov1" title="1">{
+                        return nil, fmt.Errorf("failed to list secrets: %w", err)
+                }</span>
+                <span class="cov6" title="2">secrets := make([]*Secret, len(qSecrets))
+                for i := range qSecrets </span><span class="cov6" title="2">{
+                        secrets[i] = newSecretFromQuerySecret(qSecrets[i])
+                }</span>
+                <span class="cov6" title="2">return secrets, nil</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file25" style="display: none">package service
+
+import (
+        "context"
+        "database/sql"
+        "errors"
+        "fmt"
+        "gophkeeper/internal/server/infra/db/query"
+        "time"
+)
+
+//go:generate mockgen -source=secret_save.go -destination=mocks/secret_save.go -package=mocks
+
+// secretFinder defines the interface for finding a secret by ID and user ID.
+type secretFinder interface {
+        FindSecret(ctx context.Context, arg query.FindSecretParams) (query.Secret, error)
+}
+
+// secretCreator defines the interface for creating a secret.
+type secretCreator interface {
+        CreateSecret(ctx context.Context, arg query.CreateSecretParams) (query.Secret, error)
+}
+
+// secretUpdater defines the interface for updating a secret.
+type secretUpdater interface {
+        UpdateSecret(ctx context.Context, arg query.UpdateSecretParams) (query.Secret, error)
+}
+
+// secretDeleter defines the interface for deleting a secret.
+type secretDeleter interface {
+        DeleteSecret(ctx context.Context, arg query.DeleteSecretParams) (query.Secret, error)
+}
+
+type secretRepository interface {
+        secretFinder
+        secretCreator
+        secretUpdater
+        secretDeleter
+}
+
+type SaveSecretFunc func(ctx context.Context, userID int64, id, newID string,
+        crypt, meta, data []byte, storeTime time.Time) (*Secret, error)
+
+// NewSaveSecretFunc returns a function that handles storing a secret.
+func NewSaveSecretFunc(r secretRepository) SaveSecretFunc <span class="cov1" title="1">{
+        return func(ctx context.Context, userID int64, id, newID string, crypt, meta, data []byte, storeTime time.Time) (*Secret, error) </span><span class="cov10" title="7">{
+                _, err := r.FindSecret(ctx, query.FindSecretParams{
+                        ID:     id,
+                        UserID: userID,
+                })
+                if err != nil </span><span class="cov6" title="3">{
+                        if !errors.Is(err, sql.ErrNoRows) </span><span class="cov1" title="1">{
+                                return nil, fmt.Errorf("failed to find: %w", err)
+                        }</span>
+                        <span class="cov4" title="2">qSecret, err := r.CreateSecret(ctx, query.CreateSecretParams{
+                                ID:        newID,
+                                UserID:    userID,
+                                Crypt:     crypt,
+                                Meta:      meta,
+                                Data:      data,
+                                CreatedAt: storeTime.UTC(),
+                        })
+                        if err == nil </span><span class="cov1" title="1">{
+                                return newSecretFromQuerySecret(qSecret), nil
+                        }</span>
+                        <span class="cov1" title="1">if !errors.Is(err, sql.ErrNoRows) </span><span class="cov1" title="1">{
+                                return nil, fmt.Errorf("failed to create: %w", err)
+                        }</span>
+                }
+                <span class="cov7" title="4">if id != newID </span><span class="cov4" title="2">{
+                        _, err := r.FindSecret(ctx, query.FindSecretParams{
+                                ID:     newID,
+                                UserID: userID,
+                        })
+                        if err == nil </span><span class="cov4" title="2">{
+                                _, err = r.DeleteSecret(ctx, query.DeleteSecretParams{
+                                        UserID:    userID,
+                                        ID:        newID,
+                                        UpdatedAt: storeTime.UTC(),
+                                })
+                                if err != nil </span><span class="cov1" title="1">{
+                                        return nil, fmt.Errorf("failed to delete: %w", err)
+                                }</span>
+                        } else<span class="cov0" title="0"> if !errors.Is(err, sql.ErrNoRows) </span><span class="cov0" title="0">{
+                                return nil, fmt.Errorf("failed to find: %w", err)
+                        }</span>
+                }
+                <span class="cov6" title="3">qSecret, err := r.UpdateSecret(ctx, query.UpdateSecretParams{
+                        ID:        newID,
+                        ID_2:      id,
+                        UserID:    userID,
+                        Crypt:     crypt,
+                        Meta:      meta,
+                        Data:      data,
+                        UpdatedAt: storeTime.UTC(),
+                })
+                if err != nil </span><span class="cov1" title="1">{
+                        if errors.Is(err, sql.ErrNoRows) </span><span class="cov1" title="1">{
+                                err = ErrConflict
+                        }</span>
+                        <span class="cov1" title="1">return nil, fmt.Errorf("failed to update: %w, %v, %v, %v", err, id, newID, storeTime.UTC())</span>
+                }
+                <span class="cov4" title="2">return newSecretFromQuerySecret(qSecret), nil</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file26" style="display: none">package service
+
+import (
+        "errors"
+        "sync"
+)
+
+type SyncMsg struct {
+        Action int32
+        ID     string
+        Secret Secret
+}
+
+type Subscriber struct {
+        userID int64
+        C      chan SyncMsg
+}
+
+type SyncService struct {
+        mux         sync.Mutex
+        subscribers map[int64]map[*Subscriber]*Subscriber
+        closed      bool
+}
+
+func NewSyncService() *SyncService <span class="cov7" title="5">{
+        return &amp;SyncService{
+                subscribers: make(map[int64]map[*Subscriber]*Subscriber),
+        }
+}</span>
+
+func (s *SyncService) Subscribe(userID int64) (*Subscriber, error) <span class="cov10" title="11">{
+        s.mux.Lock()
+        defer s.mux.Unlock()
+        if s.closed </span><span class="cov3" title="2">{
+                return nil, errors.New("sync service is closed")
+        }</span>
+        <span class="cov9" title="9">if _, ok := s.subscribers[userID]; !ok </span><span class="cov7" title="5">{
+                s.subscribers[userID] = make(map[*Subscriber]*Subscriber)
+        }</span>
+        <span class="cov9" title="9">subscriber := &amp;Subscriber{
+                userID: userID,
+                C:      make(chan SyncMsg, 10),
+        }
+        s.subscribers[userID][subscriber] = subscriber
+        return subscriber, nil</span>
+}
+
+func (s *SyncService) Unsubscribe(subscriber *Subscriber) <span class="cov3" title="2">{
+        s.mux.Lock()
+        defer s.mux.Unlock()
+        if _, ok := s.subscribers[subscriber.userID]; !ok </span><span class="cov1" title="1">{
+                return
+        }</span>
+        <span class="cov1" title="1">delete(s.subscribers[subscriber.userID], subscriber)
+        if len(s.subscribers[subscriber.userID]) == 0 </span><span class="cov1" title="1">{
+                delete(s.subscribers, subscriber.userID)
+        }</span>
+        <span class="cov1" title="1">close(subscriber.C)</span>
+}
+
+func (s *SyncService) Broadcast(action int32, id string, secret Secret) <span class="cov5" title="3">{
+        s.mux.Lock()
+        defer s.mux.Unlock()
+        subscribers, ok := s.subscribers[secret.UserID]
+        if !ok </span><span class="cov0" title="0">{
+                return
+        }</span>
+        <span class="cov5" title="3">syncMsg := SyncMsg{
+                ID:     id,
+                Action: action,
+                Secret: secret,
+        }
+        for _, subscriber := range subscribers </span><span class="cov8" title="7">{
+                subscriber.C &lt;- syncMsg
+        }</span>
+}
+
+func (s *SyncService) Close() <span class="cov3" title="2">{
+        s.mux.Lock()
+        defer s.mux.Unlock()
+        s.closed = true
+        for _, subscribers := range s.subscribers </span><span class="cov5" title="3">{
+                for _, subscriber := range subscribers </span><span class="cov7" title="5">{
+                        delete(s.subscribers[subscriber.userID], subscriber)
+                        close(subscriber.C)
+                }</span>
+        }
+        <span class="cov3" title="2">s.subscribers = make(map[int64]map[*Subscriber]*Subscriber)</span>
+}
+</pre>
+		
+		<pre class="file" id="file27" style="display: none">package service
+
+import (
+        "context"
+        "database/sql"
+        "errors"
+        "fmt"
+        "gophkeeper/internal/server/infra/db/query"
+)
+
+//go:generate mockgen -source=user_find.go -destination=mocks/user_find.go -package=mocks
+
+// userFinderByID defines the interface for finding a user by ID.
+type userFinderByID interface {
+        GetUserById(ctx context.Context, id int64) (query.User, error)
+}
+
+type FindUserByIDFunc func(ctx context.Context, id int64) (*User, error)
+
+// NewFindUserByIDFunc returns a function that handles finding a user by ID.
+func NewFindUserByIDFunc(finderByID userFinderByID) FindUserByIDFunc <span class="cov1" title="1">{
+        return func(ctx context.Context, id int64) (*User, error) </span><span class="cov10" title="4">{
+                qUser, err := finderByID.GetUserById(ctx, id)
+                if err != nil </span><span class="cov5" title="2">{
+                        if errors.Is(err, sql.ErrNoRows) </span><span class="cov1" title="1">{
+                                err = ErrNotFound
+                        }</span>
+                        <span class="cov5" title="2">return nil, fmt.Errorf("failed to get user #%d: %w", id, err)</span>
+                }
+                <span class="cov5" title="2">user, err := newUserFromQueryUser(qUser)
+                if err != nil </span><span class="cov1" title="1">{
+                        return nil, fmt.Errorf("failed to new user: %w", err)
+                }</span>
+                <span class="cov1" title="1">return user, nil</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file28" style="display: none">package service
+
+import (
+        "context"
+        "database/sql"
+        "errors"
+        "fmt"
+)
+
+type FindUserByFingerprintFunc func(ctx context.Context, fingerprint string) (*User, error)
+
+// NewFindUserByFingerprintFunc returns a function that handles finding a user by fingerprint.
+func NewFindUserByFingerprintFunc(finderByFingerprint userFinderByFingerprint) FindUserByFingerprintFunc <span class="cov1" title="1">{
+        return func(ctx context.Context, fingerprint string) (*User, error) </span><span class="cov10" title="4">{
+                qUser, err := finderByFingerprint.GetUserByFingerprint(ctx, fingerprint)
+                if err != nil </span><span class="cov5" title="2">{
+                        if errors.Is(err, sql.ErrNoRows) </span><span class="cov1" title="1">{
+                                err = ErrNotFound
+                        }</span>
+                        <span class="cov5" title="2">return nil, fmt.Errorf("failed to get user #%s: %w", fingerprint, err)</span>
+                }
+                <span class="cov5" title="2">user, err := newUserFromQueryUser(qUser)
+                if err != nil </span><span class="cov1" title="1">{
+                        return nil, fmt.Errorf("failed to new user: %w", err)
+                }</span>
+                <span class="cov1" title="1">return user, nil</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file29" style="display: none">package service
+
+import (
+        "context"
+        "database/sql"
+        "errors"
+        "fmt"
+        "gophkeeper/internal/server/infra/db/query"
+        "gophkeeper/pkg/crypt"
+        "time"
+
+        "github.com/jackc/pgconn"
+        "github.com/jackc/pgerrcode"
+)
+
+//go:generate mockgen -source=user_register.go -destination=mocks/user_register.go -package=mocks
+
+// userCreator defines the interface for creating a user.
+type userCreator interface {
+        CreateUser(ctx context.Context, params query.CreateUserParams) (userID int64, err error)
+}
+
+// userFinderByFingerprint defines the interface for finding a user by fingerprint.
+type userFinderByFingerprint interface {
+        GetUserByFingerprint(ctx context.Context, fingerprint string) (query.User, error)
+}
+
+// RegisterUserFunc is a function that handles user registration.
+type RegisterUserFunc func(ctx context.Context, publicKeyBytes []byte) (int64, error)
+
+// registerRepository defines the interface for registering a user.
+type registerRepository interface {
+        userCreator
+        userFinderByFingerprint
+}
+
+// NewRegisterUserFunc returns a function that handles user registration.
+func NewRegisterUserFunc(r registerRepository) RegisterUserFunc <span class="cov1" title="1">{
+        return func(ctx context.Context, publicKeyBytes []byte) (id int64, err error) </span><span class="cov10" title="4">{
+                fingerprint := crypt.Fingerprint(publicKeyBytes)
+                _, err = r.GetUserByFingerprint(ctx, fingerprint)
+                if err != nil </span><span class="cov8" title="3">{
+                        if !errors.Is(err, sql.ErrNoRows) </span><span class="cov0" title="0">{
+                                return 0, fmt.Errorf("failed to get user by fingerprint: %w", err)
+                        }</span>
+                } else<span class="cov1" title="1"> {
+                        return 0, fmt.Errorf("%w: fingerprint already exists", ErrConflict)
+                }</span>
+                <span class="cov8" title="3">id, err = r.CreateUser(ctx, query.CreateUserParams{
+                        Fingerprint: crypt.Fingerprint(publicKeyBytes),
+                        PublicKey:   crypt.EncodePublicKey(publicKeyBytes),
+                        CreatedAt:   time.Now(),
+                })
+                if err != nil </span><span class="cov5" title="2">{
+                        var e *pgconn.PgError
+                        if errors.As(err, &amp;e) &amp;&amp; pgerrcode.IsIntegrityConstraintViolation(e.Code) </span><span class="cov1" title="1">{
+                                return 0, fmt.Errorf("%w: public key", ErrConflict)
+                        }</span>
+                        <span class="cov1" title="1">return 0, fmt.Errorf("failed to create user: %w", err)</span>
+                }
+                <span class="cov1" title="1">return id, nil</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file30" style="display: none">package crypt
+
+import (
+        "crypto"
+        "crypto/aes"
+        "crypto/cipher"
+        "crypto/rand"
+        "crypto/rsa"
+        "crypto/sha256"
+        "encoding/binary"
+        "fmt"
+        "testing"
+
+        "github.com/stretchr/testify/assert"
+)
+
+const (
+        AESKeySize    = 32
+        Int64BytesLen = 8
+)
+
+func HashData(data ...[]byte) []byte <span class="cov8" title="19">{
+        hasher := sha256.New()
+        for _, d := range data </span><span class="cov10" title="38">{
+                hasher.Write(d)
+        }</span>
+        <span class="cov8" title="19">return hasher.Sum(nil)</span>
+}
+
+func VerifyPSSWithTimestamp(rsaPublicKey *rsa.PublicKey, signature []byte, timestamp int64, data ...[]byte) bool <span class="cov6" title="8">{
+        timestampBytes := make([]byte, Int64BytesLen)
+        binary.BigEndian.PutUint64(timestampBytes, uint64(timestamp))
+        return rsa.VerifyPSS(rsaPublicKey, crypto.SHA256, HashData(append(data, timestampBytes)...), signature, nil) == nil
+}</span>
+
+func VerifyPSSWithTimestampAndUserID(rsaPublicKey *rsa.PublicKey, signature []byte, userID, timestamp int64, data ...[]byte) bool <span class="cov4" title="4">{
+        userIDBytes := make([]byte, Int64BytesLen)
+        binary.LittleEndian.PutUint64(userIDBytes, uint64(userID))
+        return VerifyPSSWithTimestamp(rsaPublicKey, signature, timestamp, HashData(append(data, userIDBytes)...))
+}</span>
+
+func SignPSSWithTimestamp(privateKey *rsa.PrivateKey, timestamp int64, data ...[]byte) ([]byte, error) <span class="cov4" title="4">{
+        timestampBytes := make([]byte, Int64BytesLen)
+        binary.BigEndian.PutUint64(timestampBytes, uint64(timestamp))
+        signature, err := rsa.SignPSS(rand.Reader, privateKey, crypto.SHA256, HashData(append(data, timestampBytes)...), nil)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to sign data: %w", err)
+        }</span>
+        <span class="cov4" title="4">return signature, nil</span>
+}
+
+func SignPSSWithTimestampAndUserID(privateKey *rsa.PrivateKey, userID, timestamp int64, data ...[]byte) ([]byte, error) <span class="cov2" title="2">{
+        userIDBytes := make([]byte, Int64BytesLen)
+        binary.LittleEndian.PutUint64(userIDBytes, uint64(userID))
+        return SignPSSWithTimestamp(privateKey, timestamp, HashData(append(data, userIDBytes)...))
+}</span>
+
+func Decrypt(privateKey *rsa.PrivateKey, encryptedAESKey, encryptedData []byte) (data []byte, err error) <span class="cov3" title="3">{
+        aesKey, err := rsa.DecryptOAEP(sha256.New(), rand.Reader, privateKey, encryptedAESKey, nil)
+        if err != nil </span><span class="cov1" title="1">{
+                return nil, fmt.Errorf("RSA key decryption failed: %w", err)
+        }</span>
+        <span class="cov2" title="2">block, err := aes.NewCipher(aesKey)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to create AES cipher: %w", err)
+        }</span>
+        <span class="cov2" title="2">gcm, err := cipher.NewGCM(block)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to create GCM: %w", err)
+        }</span>
+        <span class="cov2" title="2">nonceSize := gcm.NonceSize()
+        if len(encryptedData) &lt; nonceSize </span><span class="cov1" title="1">{
+                return nil, fmt.Errorf("encrypted data too short for nonce")
+        }</span>
+        <span class="cov1" title="1">nonce, ciphertext := encryptedData[:nonceSize], encryptedData[nonceSize:]
+        data, err = gcm.Open(nil, nonce, ciphertext, nil)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("AES-GCM decryption failed: %w", err)
+        }</span>
+        <span class="cov1" title="1">return data, nil</span>
+}
+
+func GenerateTestRSAKeyPair(t *testing.T) (*rsa.PrivateKey, *rsa.PublicKey) <span class="cov5" title="7">{
+        privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
+        assert.NoError(t, err)
+        publicKey := &amp;privateKey.PublicKey
+        return privateKey, publicKey
+}</span>
+</pre>
+		
+		<pre class="file" id="file31" style="display: none">package crypt
+
+import (
+        "crypto/rsa"
+        "crypto/sha256"
+        "crypto/x509"
+        "encoding/base64"
+        "encoding/pem"
+        "errors"
+        "fmt"
+        "os"
+
+        "golang.org/x/crypto/ssh"
+)
+
+func PublicKeyHash(publicKeyBytes []byte) []byte <span class="cov6" title="2">{
+        hash := sha256.Sum256(publicKeyBytes)
+        return hash[:]
+}</span>
+
+func FingerprintFromHash(hash []byte) string <span class="cov6" title="2">{
+        return base64.StdEncoding.EncodeToString(hash)
+}</span>
+
+func Fingerprint(publicKeyBytes []byte) string <span class="cov1" title="1">{
+        return FingerprintFromHash(PublicKeyHash(publicKeyBytes))
+}</span>
+
+func RSAPublicKeyFromBytes(publicKeyBytes []byte) (*rsa.PublicKey, error) <span class="cov10" title="3">{
+        publicKey, err := x509.ParsePKIXPublicKey(publicKeyBytes)
+        if err != nil </span><span class="cov6" title="2">{
+                return nil, fmt.Errorf("failed to parse public key: %w", err)
+        }</span>
+        <span class="cov1" title="1">rsaPublicKey, ok := publicKey.(*rsa.PublicKey)
+        if !ok </span><span class="cov0" title="0">{
+                return nil, errors.New("invalid public key format")
+        }</span>
+        <span class="cov1" title="1">return rsaPublicKey, nil</span>
+}
+
+func EncodePublicKey(publicKeyBytes []byte) string <span class="cov1" title="1">{
+        return string(pem.EncodeToMemory(&amp;pem.Block{
+                Type:  "RSA PUBLIC KEY",
+                Bytes: publicKeyBytes,
+        }))
+}</span>
+
+func DecodePublicKey(publicKeyStr string) ([]byte, error) <span class="cov10" title="3">{
+        block, _ := pem.Decode([]byte(publicKeyStr))
+        if block == nil || block.Type != "RSA PUBLIC KEY" </span><span class="cov6" title="2">{
+                return nil, fmt.Errorf("invalid public key format")
+        }</span>
+        <span class="cov1" title="1">return block.Bytes, nil</span>
+}
+
+// ParsePrivateKey parses a private key from a file
+func ParsePrivateKey(privateKeyPath string) (*rsa.PrivateKey, error) <span class="cov10" title="3">{
+        keyBytes, err := os.ReadFile(privateKeyPath)
+        if err != nil </span><span class="cov1" title="1">{
+                return nil, fmt.Errorf("read file: %w", err)
+        }</span>
+        <span class="cov6" title="2">key, err := ssh.ParseRawPrivateKey(keyBytes)
+        if err != nil </span><span class="cov1" title="1">{
+                return nil, fmt.Errorf("raw: %w", err)
+        }</span>
+        <span class="cov1" title="1">rsaKey, ok := key.(*rsa.PrivateKey)
+        if !ok </span><span class="cov0" title="0">{
+                return nil, errors.New("private key is not an RSA key")
+        }</span>
+        <span class="cov1" title="1">if err = rsaKey.Validate(); err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("private key is not valid: %w", err)
+        }</span>
+        <span class="cov1" title="1">return rsaKey, nil</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

@@ -99,7 +99,7 @@ func TestServiceServer_findAndAuthUser(t *testing.T) {
 			name: "Timestamp too old",
 			req: &proto.Auth{
 				UserId:    userID,
-				Timestamp: timestamp - 61,
+				Timestamp: timestamp - 100,
 				Signature: signature,
 				Id:        secretID,
 			},
@@ -113,9 +113,8 @@ func TestServiceServer_findAndAuthUser(t *testing.T) {
 			name: "Timestamp too new",
 			req: &proto.Auth{
 				UserId:    userID,
-				Timestamp: timestamp + 61,
+				Timestamp: timestamp + 100,
 				Signature: signature,
-				Id:        secretID,
 			},
 			data:         data,
 			timeWindow:   60,

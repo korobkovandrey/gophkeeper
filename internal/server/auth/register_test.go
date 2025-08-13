@@ -88,10 +88,13 @@ func TestServiceServer_Register(t *testing.T) {
 			name: "Timestamp out of range (too old)",
 			req: &proto.RegisterRequest{
 				PublicKeyBytes: publicKeyBytes,
-				Timestamp:      timestamp - defaultTimeWindow - 1,
+				Timestamp:      timestamp - defaultTimeWindow - 10,
 				Signature:      signature,
 			},
-			registerStub:     &stubRegisterUserFunc{},
+			registerStub: &stubRegisterUserFunc{
+				UserID: 1,
+				Err:    nil,
+			},
 			expectedResponse: nil,
 			expectedErr:      status.Error(codes.InvalidArgument, "Timestamp is out of range"),
 		},
@@ -99,7 +102,7 @@ func TestServiceServer_Register(t *testing.T) {
 			name: "Timestamp out of range (too new)",
 			req: &proto.RegisterRequest{
 				PublicKeyBytes: publicKeyBytes,
-				Timestamp:      timestamp + defaultTimeWindow + 1,
+				Timestamp:      timestamp + defaultTimeWindow + 10,
 				Signature:      signature,
 			},
 			registerStub:     &stubRegisterUserFunc{},

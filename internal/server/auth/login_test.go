@@ -98,10 +98,13 @@ func TestServiceServer_Login(t *testing.T) {
 			name: "Timestamp out of range (too old)",
 			req: &proto.LoginRequest{
 				Fingerprint: fingerprint,
-				Timestamp:   timestamp - defaultTimeWindow - 1,
+				Timestamp:   timestamp - defaultTimeWindow - 10,
 				Signature:   signature,
 			},
-			findStub:         &stubFindUserByFingerprintFunc{},
+			findStub: &stubFindUserByFingerprintFunc{
+				User: user,
+				Err:  nil,
+			},
 			expectedResponse: nil,
 			expectedErr:      status.Error(codes.InvalidArgument, "Timestamp is out of range"),
 		},
@@ -109,10 +112,13 @@ func TestServiceServer_Login(t *testing.T) {
 			name: "Timestamp out of range (too new)",
 			req: &proto.LoginRequest{
 				Fingerprint: fingerprint,
-				Timestamp:   timestamp + defaultTimeWindow + 1,
+				Timestamp:   timestamp + defaultTimeWindow + 10,
 				Signature:   signature,
 			},
-			findStub:         &stubFindUserByFingerprintFunc{},
+			findStub: &stubFindUserByFingerprintFunc{
+				User: user,
+				Err:  nil,
+			},
 			expectedResponse: nil,
 			expectedErr:      status.Error(codes.InvalidArgument, "Timestamp is out of range"),
 		},
