@@ -2,8 +2,6 @@ package app
 
 import (
 	"context"
-	"fmt"
-	"gophkeeper/internal/client/model"
 	"gophkeeper/internal/client/service"
 	"gophkeeper/pkg/logging"
 	"gophkeeper/pkg/proto"
@@ -27,6 +25,7 @@ type App struct {
 	online   atomic.Bool
 	OnlineCh chan struct{}
 	UpdateCh chan struct{}
+	eventCh  chan *proto.SecretEvent
 }
 
 // NewApp создает новое приложение.
@@ -36,6 +35,7 @@ func NewApp(conn *grpc.ClientConn, opts ...Option) *App {
 		secret:   proto.NewSecretServiceClient(conn),
 		OnlineCh: make(chan struct{}, 1),
 		UpdateCh: make(chan struct{}, 1),
+		eventCh:  make(chan *proto.SecretEvent),
 	}
 	for _, opt := range opts {
 		opt(a)
@@ -86,6 +86,7 @@ func (a *App) run(ctx context.Context) {
 	defer func() {
 		close(a.OnlineCh)
 		close(a.UpdateCh)
+		close(a.eventCh)
 	}()
 	for {
 		var stream grpc.ServerStreamingClient[proto.SecretEvent]
@@ -112,51 +113,19 @@ func (a *App) run(ctx context.Context) {
 			started = true
 		}
 		for {
-			event, err := stream.Recv()
-			if err != nil {
+			if event, err := stream.Recv(); err != nil {
 				a.onlineEvent(false)
 				a.l.InfoCtx(ctx, "stream error", zap.Error(err))
 				if status.Code(err) == codes.Canceled {
 					return
 				}
 				break
-			}
-			a.l.InfoCtx(ctx, "event", zap.Any("event", event))
-			if err = a.processEvent(event); err != nil {
-				a.l.WarnCtx(ctx, "failed to process event", zap.Error(err))
 			} else {
-				a.updateEvent()
+				a.l.InfoCtx(ctx, "stream", zap.Any("event", event))
+				a.eventCh <- event
 			}
 		}
 	}
-}
-
-func (a *App) processEvent(event *proto.SecretEvent) error {
-	if event.Secret == nil {
-		return fmt.Errorf("secret is nil, action %s id %s", event.Action, event.Id)
-	}
-	switch event.Action {
-	case proto.SecretAction_LIST, proto.SecretAction_STORED:
-		secret, err := model.MakeSecret(
-			event.Id, event.Secret.Id, event.Secret.Crypt, event.Secret.Meta, event.Secret.Data,
-			a.time.LocalFromUnix(event.Secret.CreatedAt), a.time.LocalFromUnix(event.Secret.UpdatedAt),
-			a.key.PrivateKey)
-		if err != nil {
-			return fmt.Errorf("failed to make secret: %w", err)
-		}
-		err = a.store.SyncStore(secret)
-		if err != nil {
-			return fmt.Errorf("%w: action %s id %s", err, event.Action, secret.ID)
-		}
-	case proto.SecretAction_DELETED:
-		err := a.store.Delete(model.ID(event.Id), a.time.LocalFromUnix(event.Secret.UpdatedAt))
-		if err != nil {
-			return fmt.Errorf("%w: deleting %s", err, event.Id)
-		}
-	default:
-		return fmt.Errorf("unknown event action: %s %s", event.Action, event.Id)
-	}
-	return nil
 }
 
 func (a *App) IsOnline() bool {

@@ -52,6 +52,7 @@ func Run(ctx context.Context, cfg *config.Config, l *logging.ZapLogger) error {
 	defer store.Close()
 	a := app.NewApp(conn, app.WithLogger(l), app.WithTimeService(t), app.WithKeyService(key), app.WithStore(store))
 	go a.RunSync(ctx)
+	go a.RunEventProcessor(ctx)
 	storage := service.NewStorage(key, store)
 
 	modelCtx, cancel := context.WithCancel(ctx)
