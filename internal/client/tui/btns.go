@@ -38,35 +38,44 @@ func updateBtns(m *Model) {
 
 	isWorkAvailable := m.key.GetPrivateKeyPath() != ""
 
-	if isWorkAvailable {
-		if isForm {
-			if formIsValid {
-				m.btns = append(m.btns, btnSave)
-			}
-			if !formIsNew {
-				m.btns = append(m.btns, btnDelete)
-			}
-		}
-		if isScreenTable {
-			m.btns = append(m.btns, btnFormAddText, btnFormAddLoginPass, btnFormAddCard)
-		} else {
-			m.btns = append(m.btns, btnTable)
-		}
-	}
-	if !m.app.IsLogged() {
-		if isWorkAvailable {
-			m.btns = append(m.btns, btnLogin, btnRegister)
-		}
-		if !isScreenFilepicker {
-			m.btns = append(m.btns, btnFile)
-		}
-	}
+	updateBtnsCheckWorkAvailable(m, isWorkAvailable, isForm, formIsValid, formIsNew, isScreenTable)
+	updateBtnsCheckLogged(m, isWorkAvailable, isScreenFilepicker)
 	if m.focused {
 		for i := range m.btns {
 			if currentBtn == m.btns[i] {
 				m.cursor = i
 				break
 			}
+		}
+	}
+}
+
+func updateBtnsCheckWorkAvailable(m *Model, isWorkAvailable, isForm, formIsValid, formIsNew, isScreenTable bool) {
+	if !isWorkAvailable {
+		return
+	}
+	if isForm {
+		if formIsValid {
+			m.btns = append(m.btns, btnSave)
+		}
+		if !formIsNew {
+			m.btns = append(m.btns, btnDelete)
+		}
+	}
+	if isScreenTable {
+		m.btns = append(m.btns, btnFormAddText, btnFormAddLoginPass, btnFormAddCard)
+	} else {
+		m.btns = append(m.btns, btnTable)
+	}
+}
+
+func updateBtnsCheckLogged(m *Model, isWorkAvailable, isScreenFilepicker bool) {
+	if !m.app.IsLogged() {
+		if isWorkAvailable {
+			m.btns = append(m.btns, btnLogin, btnRegister)
+		}
+		if !isScreenFilepicker {
+			m.btns = append(m.btns, btnFile)
 		}
 	}
 }
